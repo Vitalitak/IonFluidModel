@@ -156,7 +156,6 @@ def main():
     C /= 1.6E-19
 
     # stitching parameters
-    a = 3.5E-5  # m
     P = 0.995  # P = ni(a)/n0 boundary N(x)
     b = 8
 
