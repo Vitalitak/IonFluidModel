@@ -121,6 +121,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
     # print(D)
 
     for i in range(Nsh, Nx-1):
+        print(i)
         f1 = -m.pow((A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]), 0.5)
         f2 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]), 0.5)
         f3 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, 0, Psi[i]+ dx / 2 * f2)[0]), 0.5)
@@ -132,8 +133,8 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 3.55E-5  # m
-    a = 3.5E-5
+    boxsize = 4.1E-5  # m
+    a = 4E-5
     dt = 0.1  # ns
     dx = 1E-10
     Nx = int(boxsize/dx)
