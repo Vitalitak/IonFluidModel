@@ -1,7 +1,7 @@
 import math as m
 import matplotlib.pyplot as plt
 import numpy as np
-from sympy import Function, dsolve, Eq, Derivative, exp, symbols
+#from sympy import Function, dsolve, Eq, Derivative, exp, symbols
 #from sympy.solvers.ode.systems import dsolve_system
 from pynverse import inversefunc
 
