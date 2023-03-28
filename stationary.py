@@ -22,7 +22,7 @@ def main():
     Te = 2.3  # eV
     Ti = 0.06  # eV
     n0 = 1E16  # m-3
-    Vdc = -18
+    Vdc = -15
     C = 1.4E-16
     C /= 1.6E-19
 
@@ -49,7 +49,7 @@ def main():
     Ni = [0 for k in range(0, Nx)]
     Vrf = 0
 
-    Psil = -7
+    Psil = e*(Vdc-V0)/kTe
     NPsi = 1000
     dPsi = Psil/NPsi
 
