@@ -1,9 +1,75 @@
 import math as m
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.integrate import quad
 #from sympy import Function, dsolve, Eq, Derivative, exp, symbols
 #from sympy.solvers.ode.systems import dsolve_system
 from pynverse import inversefunc
+
+"""
+four order Runge-Kutta method for solution equation
+dy/dx=f(x, y)
+
+Poisson equation with Maxwell-Boltzmann electrons and ion concentration from fluid model
+for dn/dt = 0 and du/dt = 0
+
+N=3
+gammai = 5/3
+
+dPsi/dx=F(x, Ksi)
+
+"""
+
+def RKPois1(dx, Psi, Nx, n0, Ti, Te, V0, FN):
+    e = 1.6E-19
+    eps0 = 8.85E-12
+    kTe = Te * 1.6E-19  # J
+
+    """
+    Psi(0)=0
+    dPsi/dx(0) = 0
+    dPsi/dx<0
+
+
+
+    dPsi/dx=F(x, Psi)
+    F = -(A*exp(Psi)+B*int(N(dzetta), dzetta=[0, Psi(x)]))^1/2
+
+    A=2*e*e*n0/eps0/kTe*m.exp(e*V0/kTe)
+    B=-2*e*e*n0/eps0/kTe
+    
+    Psi(0)=0
+
+    Four order Runge-Kutta method
+    f1=F(x[n], Psi[n])
+    f2=F(x[n]+dx/2, Psi[n]+dx/2*f1)
+    f3=F(x[n]+dx/2, Psi[n]+dx/2*f2)
+    f4=F(x[n]+dx, Psi[n]+dx*f3)
+
+    Psi[n+1]=Psi[n]+dx/6*(f1+2*f2+2*f3+f4)
+
+    """
+
+    # dx = x[Npl - 1]-x[Npl - 2]
+    # Nx = len[Ksi]
+
+    Psi[2] = dx * dx * e * e * n0 / eps0 / kTe * (m.exp(e * V0 / kTe) - 1)
+    A = 2 * e * e * n0 / eps0 / kTe * m.exp(e * V0 / kTe)
+    B = -2 * e * e * n0 / eps0 / kTe
+
+    # print(A)
+    # print(B)
+    # print(C)
+    # print(D)
+
+    for i in range(2, Nx-1):
+        f1 = -m.pow((A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]), 0.5)
+        f2 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]), 0.5)
+        f3 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, 0, Psi[i]+ dx / 2 * f2)[0]), 0.5)
+        f4 = -m.pow((A * m.exp(Psi[i] + dx * f3) + B * quad(FN, 0, Psi[i]+ dx * f3)[0]), 0.5)
+        Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
+
+    return Psi
 
 
 def main():
@@ -64,11 +130,22 @@ def main():
 
     xNi = [0 for k in range(0, NPsi)]
 
+    res, err = quad(FN, 0, -1)
+    print(print("The numerical result is {:f} (+-{:g})"
+    .format(res, err)))
+    print(quad(FN, 0, -1)[0])
+
+    Psi = RKPois1(dx, Psi, Nx, n0, Ti, Te, V0, FN)
+
     for i in range(0, NPsi):
         xNi[i] = FN(xPsi[i])
 
     plt.plot(xPsi, xNi)
     plt.ylabel('Ni')
+    plt.show()
+
+    plt.plot(x, Psi)
+    plt.ylabel('Psi')
     plt.show()
 
     #print(FN(Number))
