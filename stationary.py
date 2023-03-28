@@ -20,7 +20,65 @@ dPsi/dx=F(x, Ksi)
 
 """
 
-def RKPois1(dx, Psi, Nx, n0, Ti, Te, V0, FN):
+
+def RKPois1(dx, Psi, Nsh, n0, Ti, Te, V0):
+    e = 1.6E-19
+    eps0 = 8.85E-12
+    kTe = Te * 1.6E-19  # J
+
+    """
+    Psi(0)=0
+    dPsi/dx(0) = 0
+    dPsi/dx<0
+
+    boundary N(x) = 0.995
+
+    dPsi/dx=F(x, Psi)
+    F = -(A*exp(Psi)+B*Psi+C*(1-19*Te/2/Ti*Psi)^3/2+D)^1/2
+
+    A=2*e*e*n0/eps0/kTe*m.exp(e*V0/kTe)
+    B=-32/19*e*e*n0/eps0/kTe
+    C=8/361*Ti/Te*e*e*n0/eps0/kTe
+    D=-2*e*e*n0/eps0/kTe*m.exp(e*V0/kTe)-8/361*Ti/Te*e*e*n0/eps0/kTe
+    Ksi(0)=0
+
+    Four order Runge-Kutta method
+    f1=F(x[n], Psi[n])
+    f2=F(x[n]+dx/2, Psi[n]+dx/2*f1)
+    f3=F(x[n]+dx/2, Psi[n]+dx/2*f2)
+    f4=F(x[n]+dx, Psi[n]+dx*f3)
+
+    Psi[n+1]=Psi[n]+dx/6*(f1+2*f2+2*f3+f4)
+
+    """
+
+    # dx = x[Npl - 1]-x[Npl - 2]
+    # Nx = len[Ksi]
+
+    Psi[2] = dx * dx * e * e * n0 / eps0 / kTe * (m.exp(e * V0 / kTe) - 1)
+    A = 2 * e * e * n0 / eps0 / kTe * m.exp(e * V0 / kTe)
+    B = -32 / 19 * e * e * n0 / eps0 / kTe
+    C = 8 / 361 * Ti / Te * e * e * n0 / eps0 / kTe
+    D = -2 * e * e * n0 / eps0 / kTe * m.exp(e * V0 / kTe) - 8 / 361 * Ti / Te * e * e * n0 / eps0 / kTe
+
+    # print(A)
+    # print(B)
+    # print(C)
+    # print(D)
+
+    for i in range(2, Nsh):
+        f1 = -m.pow((A * m.exp(Psi[i]) + B * Psi[i] + C * m.pow((1 - 19 * Te / 2 / Ti * Psi[i]), 1.5) + D), 0.5)
+        f2 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f1) + B * (Psi[i] + dx / 2 * f1) + C * m.pow(
+            (1 - 19 * Te / 2 / Ti * (Psi[i] + dx / 2 * f1)), 1.5) + D), 0.5)
+        f3 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f2) + B * (Psi[i] + dx / 2 * f2) + C * m.pow(
+            (1 - 19 * Te / 2 / Ti * (Psi[i] + dx / 2 * f2)), 1.5) + D), 0.5)
+        f4 = -m.pow((A * m.exp(Psi[i] + dx * f3) + B * (Psi[i] + dx * f3) + C * m.pow(
+            (1 - 19 * Te / 2 / Ti * (Psi[i] + dx * f3)), 1.5) + D), 0.5)
+        Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
+
+    return Psi
+
+def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
     e = 1.6E-19
     eps0 = 8.85E-12
     kTe = Te * 1.6E-19  # J
@@ -53,7 +111,7 @@ def RKPois1(dx, Psi, Nx, n0, Ti, Te, V0, FN):
     # dx = x[Npl - 1]-x[Npl - 2]
     # Nx = len[Ksi]
 
-    Psi[2] = dx * dx * e * e * n0 / eps0 / kTe * (m.exp(e * V0 / kTe) - 1)
+    #Psi[2] = dx * dx * e * e * n0 / eps0 / kTe * (m.exp(e * V0 / kTe) - 1)
     A = 2 * e * e * n0 / eps0 / kTe * m.exp(e * V0 / kTe)
     B = -2 * e * e * n0 / eps0 / kTe
 
@@ -62,7 +120,7 @@ def RKPois1(dx, Psi, Nx, n0, Ti, Te, V0, FN):
     # print(C)
     # print(D)
 
-    for i in range(2, Nx-1):
+    for i in range(Nsh, Nx-1):
         f1 = -m.pow((A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]), 0.5)
         f2 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]), 0.5)
         f3 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, 0, Psi[i]+ dx / 2 * f2)[0]), 0.5)
@@ -74,9 +132,13 @@ def RKPois1(dx, Psi, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 5E-5  # m
+    boxsize = 3.55E-5  # m
+    a = 3.5E-5
     dt = 0.1  # ns
-    Nx = 500000
+    dx = 1E-10
+    Nx = int(boxsize/dx)
+    Nsh = int(a/dx)
+    #Nx = 500000
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -103,7 +165,6 @@ def main():
     # V0 = kTe / e * (1 - P) / (m.cosh(m.sqrt(e * e * n0 / 2 / eps0 / kTi) * a) - 1)
 
     Nt = int(tEnd / dt)
-    dx = boxsize / Nx
 
     x = [k * dx for k in range(0, Nx)]
     V = [0 for k in range(0, Nx)]
@@ -135,7 +196,9 @@ def main():
     .format(res, err)))
     print(quad(FN, 0, -1)[0])
 
-    Psi = RKPois1(dx, Psi, Nx, n0, Ti, Te, V0, FN)
+    Psi = RKPois1(dx, Psi, Nsh, n0, Ti, Te, V0)
+
+    Psi = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN)
 
     for i in range(0, NPsi):
         xNi[i] = FN(xPsi[i])
