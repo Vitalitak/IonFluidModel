@@ -135,8 +135,8 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 7E-5  # m
-    a = 2E-5
+    boxsize = 7.2E-5  # m
+    a = 1E-6
     dt = 0.1  # ns
     dx = 1E-7
     Nx = int(boxsize/dx)
@@ -192,6 +192,7 @@ def main():
     xPsi = [k * dPsi for k in range(0, NPsi)]
 
     xNi = [0 for k in range(0, NPsi)]
+    intNx = [0 for k in range(0, NPsi)]
 
     res, err = quad(FN, 0, -1)
     print(print("The numerical result is {:f} (+-{:g})"
@@ -204,6 +205,8 @@ def main():
 
     for i in range(0, NPsi):
         xNi[i] = FN(xPsi[i])
+        #intNx[i] = quad(FN, 0, xPsi[i])[0]
+
 
     for i in range(0, Nsh):
         Ni[i] = 1 + 3 / 19 * (1 - m.sqrt(1 - 19 * Te / 2 / Ti * Psi[i]))
@@ -211,8 +214,16 @@ def main():
     for i in range(Nsh, Nx):
         Ni[i] = FN(Psi[i])
 
+    for i in range(0, Nx):
+        V[i] = Psi[i]*kTe/e+V0
+        ni[i] = Ni[i]*n0
+        ne[i] = n0*m.exp(e*V[i]/kTe)
+
     plt.plot(xPsi, xNi)
     plt.ylabel('Ni')
+    plt.show()
+    plt.plot(xPsi, intNx)
+    plt.ylabel('intNx')
     plt.show()
 
     plt.plot(x, Psi)
@@ -221,6 +232,15 @@ def main():
 
     plt.plot(x, Ni)
     plt.ylabel('Ni')
+    plt.show()
+
+    plt.plot(x, V)
+    plt.ylabel('V')
+    plt.show()
+
+    plt.plot(x, ne, 'b')
+    plt.plot(x, ni, 'r')
+    plt.ylabel('N')
     plt.show()
 
     #print(FN(Number))
