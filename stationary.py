@@ -135,7 +135,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 7.2E-5  # m
+    boxsize = 8E-5  # m
     a = 1E-6
     dt = 0.1  # ns
     dx = 1E-7
@@ -156,6 +156,7 @@ def main():
     Vdc = -15
     C = 1.4E-16
     C /= 1.6E-19
+    gamma = 1.01
 
     # stitching parameters
     P = 0.995  # P = ni(a)/n0 boundary N(x)
@@ -182,7 +183,7 @@ def main():
     NPsi = 1000
     dPsi = Psil/NPsi
 
-    FPsi = lambda x: 4*Ti/Te*(1-3/8*m.pow(x, -2)-5/8*m.pow(x, 2/3))
+    FPsi = lambda x: (5*gamma-3)*Ti/Te/2/(gamma-1)*(1-3*(gamma-1)/(5*gamma-3)*m.pow(x, -2)-2*gamma/(5*gamma-3)*m.pow(x, gamma-1))
 
     Number = FPsi(0.01)
     #print(Number)
@@ -203,8 +204,8 @@ def main():
 
     Psi = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN)
 
-    for i in range(0, NPsi):
-        xNi[i] = FN(xPsi[i])
+    #for i in range(0, NPsi):
+        #xNi[i] = FN(xPsi[i])
         #intNx[i] = quad(FN, 0, xPsi[i])[0]
 
 
