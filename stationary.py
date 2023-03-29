@@ -112,7 +112,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
     # dx = x[Npl - 1]-x[Npl - 2]
     # Nx = len[Ksi]
 
-    Psi[Nsh+2] = -dx * dx * e * e * n0 / eps0 / kTe
+    Psi[Nsh+2] = -0.01*dx * dx * e * e * n0 / eps0 / kTe
     A = 2 * e * e * n0 / eps0 / kTe
     B = -2 * e * e * n0 / eps0 / kTe
     C = -2 * e * e * n0 / eps0 / kTe
@@ -135,7 +135,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 0.3E-3  # m
+    boxsize = 2.5E-4  # m
     a = 1E-6
     dt = 0.1  # ns
     dx = 1E-7
@@ -151,9 +151,9 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.3  # eV
+    Te = 2.6  # eV
     Ti = 0.06  # eV
-    n0 = 1E17  # m-3
+    n0 = 7E17  # m-3
     Vdc = -15
     C = 1.4E-16
     C /= 1.6E-19
