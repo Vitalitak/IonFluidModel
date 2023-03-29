@@ -16,7 +16,7 @@ for dn/dt = 0 and du/dt = 0
 N=3
 gammai = 5/3
 
-dPsi/dx=F(x, Ksi)
+dPsi/dx=F(x, Psi)
 
 """
 
@@ -135,7 +135,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 1E-4  # m
+    boxsize = 1E-3  # m
     a = 1E-6
     dt = 0.1  # ns
     dx = 1E-7
@@ -165,7 +165,7 @@ def main():
 
     kTi = Ti * 1.6E-19  # J
     kTe = Te * 1.6E-19  # J
-    V0 = -0.06
+    V0 = 0
     # V0 = kTe / e * (1 - P) / (m.cosh(m.sqrt(e * e * n0 / 2 / eps0 / kTi) * a) - 1)
 
     Nt = int(tEnd / dt)
