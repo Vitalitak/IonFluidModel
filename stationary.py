@@ -91,10 +91,11 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 
     dPsi/dx=F(x, Psi)
-    F = -(A*exp(Psi)+B*int(N(dzetta), dzetta=[0, Psi(x)]))^1/2
+    F = -(A*exp(Psi)+B*int(N(dzetta), dzetta=[0, Psi(x)])+C)^1/2
 
     A=2*e*e*n0/eps0/kTe*m.exp(e*V0/kTe)
     B=-2*e*e*n0/eps0/kTe
+    C=-2*e*e*n0/eps0/kTe*m.exp(e*V0/kTe)
     
     Psi(0)=0
 
@@ -114,6 +115,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
     #Psi[2] = dx * dx * e * e * n0 / eps0 / kTe * (m.exp(e * V0 / kTe) - 1)
     A = 2 * e * e * n0 / eps0 / kTe * m.exp(e * V0 / kTe)
     B = -2 * e * e * n0 / eps0 / kTe
+    C = -2 * e * e * n0 / eps0 / kTe * m.exp(e * V0 / kTe)
 
     # print(A)
     # print(B)
@@ -122,10 +124,10 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
     for i in range(Nsh, Nx-1):
         print(i)
-        f1 = -m.pow((A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]), 0.5)
-        f2 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]), 0.5)
-        f3 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, 0, Psi[i]+ dx / 2 * f2)[0]), 0.5)
-        f4 = -m.pow((A * m.exp(Psi[i] + dx * f3) + B * quad(FN, 0, Psi[i]+ dx * f3)[0]), 0.5)
+        f1 = -m.pow((A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]+C), 0.5)
+        f2 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]+C), 0.5)
+        f3 = -m.pow((A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, 0, Psi[i]+ dx / 2 * f2)[0]+C), 0.5)
+        f4 = -m.pow((A * m.exp(Psi[i] + dx * f3) + B * quad(FN, 0, Psi[i]+ dx * f3)[0]+C), 0.5)
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
 
     return Psi
@@ -133,8 +135,8 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 15E-5  # m
-    a = 0.1E-5
+    boxsize = 7E-5  # m
+    a = 2E-5
     dt = 0.1  # ns
     dx = 1E-7
     Nx = int(boxsize/dx)
