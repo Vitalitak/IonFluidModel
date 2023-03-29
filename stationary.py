@@ -153,7 +153,7 @@ def main():
     # plasma parameters
     Te = 2.3  # eV
     Ti = 0.06  # eV
-    n0 = 1E16  # m-3
+    n0 = 1E17  # m-3
     Vdc = -15
     C = 1.4E-16
     C /= 1.6E-19
@@ -220,6 +220,7 @@ def main():
         V[i] = Psi[i]*kTe/e
         ni[i] = Ni[i]*n0
         ne[i] = n0*m.exp(e*V[i]/kTe)
+        ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
 
     plt.plot(xPsi, xNi)
     plt.ylabel('Ni')
@@ -243,6 +244,10 @@ def main():
     plt.plot(x, ne, 'b')
     plt.plot(x, ni, 'r')
     plt.ylabel('N')
+    plt.show()
+
+    plt.plot(x, ui)
+    plt.ylabel('u')
     plt.show()
 
     #print(FN(Number))
