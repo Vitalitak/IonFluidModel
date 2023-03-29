@@ -112,7 +112,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
     # dx = x[Npl - 1]-x[Npl - 2]
     # Nx = len[Ksi]
 
-    #Psi[2] = dx * dx * e * e * n0 / eps0 / kTe * (m.exp(e * V0 / kTe) - 1)
+    Psi[Nsh+2] = -dx * dx * e * e * n0 / eps0 / kTe
     A = 2 * e * e * n0 / eps0 / kTe
     B = -2 * e * e * n0 / eps0 / kTe
     C = -2 * e * e * n0 / eps0 / kTe
@@ -122,7 +122,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
     # print(C)
     # print(D)
 
-    for i in range(Nsh, Nx-1):
+    for i in range(Nsh+2, Nx-1):
         print(i)
         f1 = -m.pow(-(A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]+C), 0.5)
         f2 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]+C), 0.5)
@@ -135,12 +135,13 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 3E-4  # m
+    boxsize = 1E-4  # m
     a = 1E-6
     dt = 0.1  # ns
     dx = 1E-7
     Nx = int(boxsize/dx)
-    Nsh = int(a/dx)
+    #Nsh = int(a/dx)
+    Nsh = 0
     #Nx = 500000
     tEnd = 50  # ns
 
@@ -164,7 +165,7 @@ def main():
 
     kTi = Ti * 1.6E-19  # J
     kTe = Te * 1.6E-19  # J
-    V0 = -0.01
+    V0 = -0.06
     # V0 = kTe / e * (1 - P) / (m.cosh(m.sqrt(e * e * n0 / 2 / eps0 / kTi) * a) - 1)
 
     Nt = int(tEnd / dt)
@@ -200,7 +201,7 @@ def main():
     .format(res, err)))
     print(quad(FN, 0, -1)[0])
 
-    Psi = RKPois1(dx, Psi, Nsh, n0, Ti, Te, V0)
+    #Psi = RKPois1(dx, Psi, Nsh, n0, Ti, Te, V0)
 
     Psi = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN)
 
@@ -209,8 +210,8 @@ def main():
         #intNx[i] = quad(FN, 0, xPsi[i])[0]
 
 
-    for i in range(0, Nsh):
-        Ni[i] = 1 + 3 / 19 * (1 - m.sqrt(1 - 19 * Te / 2 / Ti * Psi[i]))
+    #for i in range(0, Nsh):
+        #Ni[i] = 1 + 3 / 19 * (1 - m.sqrt(1 - 19 * Te / 2 / Ti * Psi[i]))
 
     for i in range(Nsh, Nx):
         Ni[i] = FN(Psi[i])
