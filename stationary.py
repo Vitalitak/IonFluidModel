@@ -133,10 +133,10 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 4.1E-5  # m
-    a = 4E-5
+    boxsize = 15E-5  # m
+    a = 0.1E-5
     dt = 0.1  # ns
-    dx = 1E-10
+    dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = int(a/dx)
     #Nx = 500000
@@ -203,12 +203,22 @@ def main():
     for i in range(0, NPsi):
         xNi[i] = FN(xPsi[i])
 
+    for i in range(0, Nsh):
+        Ni[i] = 1 + 3 / 19 * (1 - m.sqrt(1 - 19 * Te / 2 / Ti * Psi[i]))
+
+    for i in range(Nsh, Nx):
+        Ni[i] = FN(Psi[i])
+
     plt.plot(xPsi, xNi)
     plt.ylabel('Ni')
     plt.show()
 
     plt.plot(x, Psi)
     plt.ylabel('Psi')
+    plt.show()
+
+    plt.plot(x, Ni)
+    plt.ylabel('Ni')
     plt.show()
 
     #print(FN(Number))
