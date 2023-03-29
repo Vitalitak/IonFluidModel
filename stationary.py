@@ -135,7 +135,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, V0, FN):
 
 def main():
     # initialisation of parameters
-    boxsize = 1E-3  # m
+    boxsize = 0.6E-3  # m
     a = 1E-6
     dt = 0.1  # ns
     dx = 1E-7
