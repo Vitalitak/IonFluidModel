@@ -122,7 +122,7 @@ def main():
     # initialisation of parameters
     boxsize = 3.5E-4  # m
     #a = 1E-6
-    dt = 1E-7 # s
+    dt = 1E-9 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
     #Nsh = int(a/dx)
@@ -195,8 +195,21 @@ def main():
         ne[i] = n0*m.exp(e*V[i]/kTe)
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
 
+    Psi_1 = [0 for k in range(0, Nx)]
+    Ni_1 = [0 for k in range(0, Nx)]
     ui_1 = [0 for k in range(0, Nx)]
-    ui_1 = momentum(V, ni, ui, mi, kTi, boxsize, dt)
+    ui_m = [0 for k in range(0, Nx)]
+    V_1 = [0 for k in range(0, Nx)]
+    ni_1 = [0 for k in range(0, Nx)]
+    Psil_1 = e * (Vdc+10*m.sin(13560000*dt)) / kTe
+    Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
+    for i in range(Nsh, Nx):
+        Ni_1[i] = FN(Psi_1[i])
+    for i in range(0, Nx):
+        V_1[i] = Psi_1[i]*kTe/e
+        ni_1[i] = Ni_1[i]*n0
+        ui_1[i] = n0 * m.sqrt(kTi / mi) / ni_1[i]
+    ui_m = momentum(V_1, ni, ui, mi, kTi, boxsize, dt)
 
 
     plt.plot(x, Psi)
@@ -211,7 +224,8 @@ def main():
     plt.ylabel('dPsi/dx')
     plt.show()
 
-    plt.plot(x, V)
+    plt.plot(x, V, 'r')
+    plt.plot(x, V_1, 'b')
     plt.ylabel('V')
     plt.show()
 
@@ -222,6 +236,7 @@ def main():
 
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
+    plt.plot(x, ui_m, 'g')
     plt.ylabel('u')
     plt.show()
 
