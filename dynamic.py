@@ -122,7 +122,7 @@ def main():
     # initialisation of parameters
     boxsize = 3.5E-4  # m
     #a = 1E-6
-    dt = 1E-9 # s
+    dt = 1E-11 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
     #Nsh = int(a/dx)
@@ -201,7 +201,7 @@ def main():
     ui_m = [0 for k in range(0, Nx)]
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
-    Psil_1 = e * (Vdc+10*m.sin(13560000*dt)) / kTe
+    Psil_1 = e * (Vdc+100*m.sin(13560000*2*m.pi*dt)) / kTe
     Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
     for i in range(Nsh, Nx):
         Ni_1[i] = FN(Psi_1[i])
