@@ -79,7 +79,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
 
     return Psi
 
-def momentum(V, n, uprev, m, kTm, boxsize, dt):
+def momentum(V, n, uprev, mi, kTi, boxsize, dt):
 
     """
     sweep method solution of momentum balance equation
@@ -103,7 +103,7 @@ def momentum(V, n, uprev, m, kTm, boxsize, dt):
 
     for i in range(1, Nx - 1):
         a[i] = uprev[i+1] / 4.0 / dx / (-1 / dt + uprev[i - 1] * a[i-1] / 4.0 / dx)
-        b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] + e*(V[i+1]-V[i]) /dx/m - uprev[i] / dt - kTm*(n[i+1]-n[i])/n[i]) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
+        b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] + e*(V[i+1]-V[i]) /dx/mi - uprev[i] / dt - kTi*(n[i+1]-n[i])/n[i]) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
 
     # boundary condition on plasma surface: (du/dx)p = 0
     a[Nx - 1] = 0
@@ -122,7 +122,7 @@ def main():
     # initialisation of parameters
     boxsize = 3.5E-4  # m
     #a = 1E-6
-    dt = 0.1  # ns
+    dt = 1E-7 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
     #Nsh = int(a/dx)
@@ -195,6 +195,9 @@ def main():
         ne[i] = n0*m.exp(e*V[i]/kTe)
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
 
+    ui_1 = [0 for k in range(0, Nx)]
+    ui_1 = momentum(V, ni, ui, mi, kTi, boxsize, dt)
+
 
     plt.plot(x, Psi)
     plt.ylabel('Psi')
@@ -217,7 +220,8 @@ def main():
     plt.ylabel('N')
     plt.show()
 
-    plt.plot(x, ui)
+    plt.plot(x, ui, 'r')
+    plt.plot(x, ui_1, 'b')
     plt.ylabel('u')
     plt.show()
 
