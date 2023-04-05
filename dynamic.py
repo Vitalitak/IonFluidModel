@@ -77,7 +77,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
         i = i + 1
 
-    Nel = i
+    Nel = i+1
 
     return Psi, Nel
 
@@ -110,8 +110,8 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     b[0] = 0
 
     for i in range(1, Nel-1):
-        a[i] = 1/ (2-a[i-1])
-        b[i] = (b[i-1] - e / eps0 * (ne[i] - ni[i]) * dx * dx)/(2-a[i-1])
+        a[i] = -1/ (-2+a[i-1])
+        b[i] = (-b[i-1] - e / eps0 * (ni[i] - ne[i]) * dx * dx)/(-2+a[i-1])
 
     # boundary condition on electrode surface: (V)el = Ve
     a[Nel-1] = 0
