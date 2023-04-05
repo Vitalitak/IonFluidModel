@@ -77,7 +77,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
         i = i + 1
 
-    Nel = i-1
+    Nel = i
 
     return Psi, Nel
 
@@ -245,7 +245,8 @@ def main():
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
     #Psil_1 = e * (Vdc+100*m.sin(13560000*2*m.pi*dt)) / kTe
-    Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
+    #Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
+    Vel = Vdc
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, mi, kTi, dx, dt, Nel, Nx)
