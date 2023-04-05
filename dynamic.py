@@ -126,14 +126,24 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
 
     return V
 
-def momentum(V, n, uprev, mi, kTi, dx, dt, Nel, Nx):
+def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx):
 
     """
     sweep method solution of momentum balance equation
     """
-
+    dt = 1E-11  # s
+    dx = 1E-7
     e = 1.6E-19
+    mi = 6.68E-26  # kg
+    gamma = 5 / 3
     u = [0 for k in range(0, Nx)]
+
+    Psi = [0 for k in range(0, Nel)]
+    N = [0 for k in range(0, Nel)]
+
+    for i in range(0, Nel):
+        Psi[i] = e*V[i]/kTe
+        N[i] = n[i]/n0
 
     # initialisation of sweeping coefficients
     a = [0 for k in range(0, Nel)]
@@ -148,7 +158,7 @@ def momentum(V, n, uprev, mi, kTi, dx, dt, Nel, Nx):
 
     for i in range(1, Nel - 1):
         a[i] = uprev[i+1] / 4.0 / dx / (-1 / dt + uprev[i - 1] * a[i-1] / 4.0 / dx)
-        b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] + e*(V[i+1]-V[i]) /dx/mi - uprev[i] / dt - kTi*(n[i+1]-n[i])/n[i]) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
+        b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] + kTe*(Psi[i+1]-Psi[i]) /dx/mi - uprev[i] / dt - kTi/mi*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
 
     # boundary condition on electrode surface: (du/dx)el = 0
     a[Nel - 1] = 0
@@ -244,11 +254,11 @@ def main():
     ui_1 = [0 for k in range(0, Nx)]
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
-    #Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
-    Vel = Vdc
+    Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
+    #Vel = Vdc
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
-    ui_1 = momentum(V_1, ni, ui, mi, kTi, dx, dt, Nel, Nx)
+    ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx)
 
     #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
     #for i in range(Nsh, Nx):
