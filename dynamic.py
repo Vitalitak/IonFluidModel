@@ -173,6 +173,48 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx):
 
     return u
 
+def continuity(u, nprev, Nel, Nx):
+
+    """
+    sweep method solution of continuity equation
+    """
+
+    dt = 1E-11  # s
+    dx = 1E-7
+    n = [0 for k in range(0, Nx)]
+
+    # initialisation of sweeping coefficients
+    a = [0 for k in range(0, Nel)]
+    b = [0 for k in range(0, Nel)]
+
+    # forward
+    # boundary conditions on plasma surface: (dn/dt)pl = 0
+    #a[0] = u[0] / (-1/dt-(u[1]-u[0])/dx)
+    #b[0] = -nprev[0] / (-1-(u[1]-u[0])*dt/dx)
+    #a[0] = 0
+    #b[0] = nprev[0]
+    a[0] = 1
+    b[0] = 0
+    #b[0] = nprev[0] - dn
+
+    for i in range(1, Nel - 1):
+        a[i] = u[i] / ((-1/dt-(u[i+1]-u[i])/dx) + u[i]/2.0/dx*a[i-1])
+        b[i] = (-u[i]/2.0/dx*b[i-1]-nprev[i]/dt) / ((-1/dt-(u[i+1]-u[i])/dx) + u[i]/2.0/dx*a[i-1])
+
+    # boundary condition on electrode surface: (dn/dt)el = 0
+    a[Nel - 1] = 0
+    #b[Nx - 1] = (-u[Nx - 1]/2.0/dx*b[Nx-2]-nprev[Nx-1]/dt) / ((-1/dt-(u[Nx-1]-u[Nx-2])/dx) + u[Nx-1]/2.0/dx*a[Nx-2]) # boundary conditions for u (u[Nx-1]-u[Nx-2])
+    #b[Nx - 1] = nprev[Nx - 1] + dn  # (dn/dt)p = dn0/dt
+    #b[Nx - 1] = nprev[Nx - 1]  # (n)p = np (dn/dt)p = 0
+    b[Nel - 1] = b[Nel - 2] / (1 - a[Nel - 2])
+
+    # backward
+    n[Nel - 1] = b[Nel - 1]
+    for i in range(Nel - 1, 0, -1):
+        n[i - 1] = a[i - 1] * n[i] + b[i - 1]
+
+    return n
+
 def main():
     # initialisation of parameters
     boxsize = 3.5E-4  # m
@@ -254,11 +296,16 @@ def main():
     ui_1 = [0 for k in range(0, Nx)]
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
+    ne_1 = [0 for k in range(0, Nx)]
     Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
     #Vel = Vdc
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx)
+    ni_1 = continuity(ui_1, ni, Nel, Nx)
+    for i in range(0, Nel):
+        ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
+
 
     #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
     #for i in range(Nsh, Nx):
@@ -288,9 +335,14 @@ def main():
     plt.ylabel('V')
     plt.show()
 
-    plt.plot(x, ne, 'b')
     plt.plot(x, ni, 'r')
-    plt.ylabel('N')
+    plt.plot(x, ni_1, 'b')
+    plt.ylabel('Ni')
+    plt.show()
+
+    plt.plot(x, ne, 'r')
+    plt.plot(x, ne_1, 'b')
+    plt.ylabel('Ne')
     plt.show()
 
     plt.plot(x, ui, 'r')
