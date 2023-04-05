@@ -101,10 +101,12 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     b = [0 for k in range(0, Nel)]
 
     # forward
-    # boundary conditions on plasma surface: (V)pl = 0
+    # boundary conditions on plasma surface: (dV/dx)pl = 0
     #a[0] = 0.5
     #b[0] = 0.5 * (ne[0] - ni[0]) * dx * dx
-    a[0] = 0
+    #a[0] = 0
+    #b[0] = 0
+    a[0] = 1
     b[0] = 0
 
     for i in range(1, Nel-1):
