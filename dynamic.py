@@ -77,43 +77,86 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
         i = i + 1
 
-    return Psi
+    Nel = i-1
 
-def momentum(V, n, uprev, mi, kTi, boxsize, dt):
+    return Psi, Nel
+
+def Pois(ne, ni, Ve, dx, Nel, Nx):
+
+    """
+    sweep method solution of Poisson equation
+    electrode boundary condition Ve
+
+    """
+
+    e = 1.6E-19
+    eps0 = 8.85E-12
+
+    #Nx = len(ne)
+    #dx = boxsize / Nx
+    V = [0 for k in range(0, Nx)]
+
+    # initialisation of sweeping coefficients
+    a = [0 for k in range(0, Nel)]
+    b = [0 for k in range(0, Nel)]
+
+    # forward
+    # boundary conditions on plasma surface: (V)pl = 0
+    #a[0] = 0.5
+    #b[0] = 0.5 * (ne[0] - ni[0]) * dx * dx
+    a[0] = 0
+    b[0] = 0
+
+    for i in range(1, Nel-1):
+        a[i] = 1/ (2-a[i-1])
+        b[i] = (b[i-1] - e / eps0 * (ne[i] - ni[i]) * dx * dx)/(2-a[i-1])
+
+    # boundary condition on electrode surface: (V)el = Ve
+    a[Nel-1] = 0
+    #b[Nx-1] = (b[Nx-2] - (ne[Nx-1] - ni[Nx-1]) * dx * dx)/(2-a[Nx-2])
+    b[Nel-1] = Ve  #  (V)p = 0
+    #b[Nx - 1] = b[Nx - 2] / (1 - a[Nx - 2])  # (dV/dx)p = 0
+
+    # backward
+    V[Nel-1] = b[Nel-1]
+    for i in range(Nel-1, 0, -1):
+        V[i-1] = a[i-1]*V[i]+b[i-1]
+
+    return V
+
+def momentum(V, n, uprev, mi, kTi, dx, dt, Nel, Nx):
 
     """
     sweep method solution of momentum balance equation
     """
 
     e = 1.6E-19
-    Nx = len(V)
-    dx = boxsize / Nx
     u = [0 for k in range(0, Nx)]
 
     # initialisation of sweeping coefficients
-    a = [0 for k in range(0, Nx)]
-    b = [0 for k in range(0, Nx)]
+    a = [0 for k in range(0, Nel)]
+    b = [0 for k in range(0, Nel)]
 
     # forward
-    # boundary conditions on electrode surface: (du/dx)e = 0
+    # boundary conditions on plasma surface: (du/dx)pl = 0
     #a[0] = -uprev[1] * dt / 4.0 / dx
     #b[0] = (V[1] - V[0])/dx/m - uprev[0]/dt
     a[0] = 1
     b[0] = 0
 
-    for i in range(1, Nx - 1):
+    for i in range(1, Nel - 1):
         a[i] = uprev[i+1] / 4.0 / dx / (-1 / dt + uprev[i - 1] * a[i-1] / 4.0 / dx)
         b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] + e*(V[i+1]-V[i]) /dx/mi - uprev[i] / dt - kTi*(n[i+1]-n[i])/n[i]) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
 
-    # boundary condition on plasma surface: (du/dx)p = 0
-    a[Nx - 1] = 0
+    # boundary condition on electrode surface: (du/dx)el = 0
+    a[Nel - 1] = 0
     #b[Nx - 1] = (-uprev[Nx-2] / 4.0 / dx * b[Nx-2] + (V[Nx-1]-V[Nx-2])/dx - uprev[Nx-1] / dt) / (-1 / dt + uprev[Nx-2] * a[Nx-2] / 4.0 / dx)  # boundary conditions for u (u[Nx-1]-u[Nx-2])
     #b[Nx - 1] = 0  # (u)p = 0
-    b[Nx - 1] = b[Nx - 2]/(1 - a[Nx - 2])  # (du/dx)p = 0
+    b[Nel - 1] = b[Nel - 2]/(1 - a[Nel - 2])  # (du/dx)el = 0
 
     # backward
-    u[Nx - 1] = b[Nx - 1]
-    for i in range(Nx - 1, 0, -1):
+    u[Nel - 1] = b[Nel - 1]
+    for i in range(Nel - 1, 0, -1):
         u[i - 1] = a[i - 1] * u[i] + b[i - 1]
 
     return u
@@ -176,7 +219,7 @@ def main():
     print(quad(FN, 0, -1)[0])
     """
 
-    Psi = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN)
+    Psi, Nel = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN)
 
     #for i in range(0, NPsi):
         #xNi[i] = FN(xPsi[i])
@@ -198,19 +241,24 @@ def main():
     Psi_1 = [0 for k in range(0, Nx)]
     Ni_1 = [0 for k in range(0, Nx)]
     ui_1 = [0 for k in range(0, Nx)]
-    ui_m = [0 for k in range(0, Nx)]
+    #ui_m = [0 for k in range(0, Nx)]
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
-    Psil_1 = e * (Vdc+100*m.sin(13560000*2*m.pi*dt)) / kTe
-    Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
-    for i in range(Nsh, Nx):
-        Ni_1[i] = FN(Psi_1[i])
+    #Psil_1 = e * (Vdc+100*m.sin(13560000*2*m.pi*dt)) / kTe
+    Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
+
+    V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
+    ui_1 = momentum(V_1, ni, ui, mi, kTi, dx, dt, Nel, Nx)
+    #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
+    #for i in range(Nsh, Nx):
+        #Ni_1[i] = FN(Psi_1[i])
+    """
     for i in range(0, Nx):
         V_1[i] = Psi_1[i]*kTe/e
         ni_1[i] = Ni_1[i]*n0
         ui_1[i] = n0 * m.sqrt(kTi / mi) / ni_1[i]
-    ui_m = momentum(V_1, ni, ui, mi, kTi, boxsize, dt)
-
+    #ui_m = momentum(V_1, ni, ui, mi, kTi, boxsize, dt)
+    """
 
     plt.plot(x, Psi)
     plt.ylabel('Psi')
@@ -236,7 +284,7 @@ def main():
 
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
-    plt.plot(x, ui_m, 'g')
+    #plt.plot(x, ui_m, 'g')
     plt.ylabel('u')
     plt.show()
 
