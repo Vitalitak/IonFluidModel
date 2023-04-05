@@ -306,6 +306,14 @@ def main():
     for i in range(0, Nel):
         ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
+    Vel2 = Vdc + 100 * m.sin(13560000 * 2 * m.pi * 2* dt)
+    ne_2 = [0 for k in range(0, Nx)]
+
+    V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
+    ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx)
+    ni_2 = continuity(ui_2, ni_1, Nel, Nx)
+    for i in range(0, Nel):
+        ne_2[i] = n0*m.exp(e*V_2[i]/kTe)
 
     #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
     #for i in range(Nsh, Nx):
@@ -332,22 +340,25 @@ def main():
 
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
+    plt.plot(x, V_2, 'g')
     plt.ylabel('V')
     plt.show()
 
     plt.plot(x, ni, 'r')
     plt.plot(x, ni_1, 'b')
+    plt.plot(x, ni_2, 'g')
     plt.ylabel('Ni')
     plt.show()
 
     plt.plot(x, ne, 'r')
     plt.plot(x, ne_1, 'b')
+    plt.plot(x, ne_2, 'g')
     plt.ylabel('Ne')
     plt.show()
 
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
-    #plt.plot(x, ui_m, 'g')
+    plt.plot(x, ui_2, 'g')
     plt.ylabel('u')
     plt.show()
 
