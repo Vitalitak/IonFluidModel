@@ -110,7 +110,7 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     b[0] = 0
 
     for i in range(1, Nel-1):
-        a[i] = -1/ (-2+a[i-1])
+        a[i] = -1 / (-2+a[i-1])
         b[i] = (-b[i-1] - e / eps0 * (ni[i] - ne[i]) * dx * dx)/(-2+a[i-1])
 
     # boundary condition on electrode surface: (V)el = Ve
@@ -122,7 +122,7 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     # backward
     V[Nel-1] = b[Nel-1]
     for i in range(Nel-1, 0, -1):
-        V[i-1] = a[i-1]*V[i]+b[i-1]
+        V[i-1] = a[i-1]*V[i]-b[i-1]
 
     return V
 
@@ -240,18 +240,16 @@ def main():
         ne[i] = n0*m.exp(e*V[i]/kTe)
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
 
-    Psi_1 = [0 for k in range(0, Nx)]
-    Ni_1 = [0 for k in range(0, Nx)]
+
     ui_1 = [0 for k in range(0, Nx)]
-    #ui_m = [0 for k in range(0, Nx)]
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
-    #Psil_1 = e * (Vdc+100*m.sin(13560000*2*m.pi*dt)) / kTe
     #Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
     Vel = Vdc
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, mi, kTi, dx, dt, Nel, Nx)
+
     #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
     #for i in range(Nsh, Nx):
         #Ni_1[i] = FN(Psi_1[i])
