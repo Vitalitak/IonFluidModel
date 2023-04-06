@@ -297,8 +297,8 @@ def main():
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
     ne_1 = [0 for k in range(0, Nx)]
-    Vel = Vdc+100*m.sin(13560000*2*m.pi*dt)
-    #Vel = Vdc
+    #Vel = Vdc-10*m.sin(13560000*2*m.pi*dt)
+    Vel = Vdc
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx)
@@ -306,7 +306,8 @@ def main():
     for i in range(0, Nel):
         ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    Vel2 = Vdc + 100 * m.sin(13560000 * 2 * m.pi * 2* dt)
+    #Vel2 = Vdc - 10 * m.sin(13560000 * 2 * m.pi * 2* dt)
+    Vel2 = Vdc
     ne_2 = [0 for k in range(0, Nx)]
 
     V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
