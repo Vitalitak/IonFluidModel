@@ -198,8 +198,8 @@ def continuity(u, nprev, Nel, Nx):
     #b[0] = nprev[0] - dn
 
     for i in range(1, Nel - 1):
-        a[i] = u[i] / ((-1/dt-(u[i+1]-u[i])/dx) + u[i]/2.0/dx*a[i-1])
-        b[i] = (-u[i]/2.0/dx*b[i-1]-nprev[i]/dt) / ((-1/dt-(u[i+1]-u[i])/dx) + u[i]/2.0/dx*a[i-1])
+        a[i] = -u[i] / (2*(dx/dt+u[i+1]-u[i]) - u[i]*a[i-1])
+        b[i] = (u[i]/2.0/dx*b[i-1]+nprev[i]/dt) / ((1/dt+(u[i+1]-u[i])/dx) - u[i]/2.0/dx*a[i-1])
 
     # boundary condition on electrode surface: (dn/dt)el = 0
     a[Nel - 1] = 0
