@@ -173,6 +173,54 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx):
 
     return u
 
+def momentum_e(V, n, uprev, kTe, n0, Nel, Nx):
+
+    """
+    sweep method solution of momentum balance equation
+    """
+    dt = 1E-11  # s
+    dx = 1E-7
+    e = 1.6E-19
+    me = 9.11E-31  # kg
+    gamma = 5 / 3
+    u = [0 for k in range(0, Nx)]
+
+    Psi = [0 for k in range(0, Nel)]
+    N = [0 for k in range(0, Nel)]
+
+    for i in range(0, Nel):
+        Psi[i] = e*V[i]/kTe
+        N[i] = n[i]/n0
+
+    # initialisation of sweeping coefficients
+    a = [0 for k in range(0, Nel)]
+    b = [0 for k in range(0, Nel)]
+
+    # forward
+    # boundary conditions on plasma surface: (du/dx)pl = 0
+    #a[0] = -uprev[1] * dt / 4.0 / dx
+    #b[0] = (V[1] - V[0])/dx/m - uprev[0]/dt
+    a[0] = 1
+    b[0] = 0
+
+    for i in range(1, Nel - 1):
+        a[i] = uprev[i+1] / 4.0 / dx / (-1 / dt + uprev[i - 1] * a[i-1] / 4.0 / dx)
+        b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] - kTe*(Psi[i+1]-Psi[i]) /dx/me - uprev[i] / dt - kTe/me*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
+        print(i)
+
+    # boundary condition on electrode surface: (du/dx)el = 0
+    a[Nel - 1] = 0
+    #b[Nx - 1] = (-uprev[Nx-2] / 4.0 / dx * b[Nx-2] + (V[Nx-1]-V[Nx-2])/dx - uprev[Nx-1] / dt) / (-1 / dt + uprev[Nx-2] * a[Nx-2] / 4.0 / dx)  # boundary conditions for u (u[Nx-1]-u[Nx-2])
+    #b[Nx - 1] = 0  # (u)p = 0
+    b[Nel - 1] = b[Nel - 2]/(1 - a[Nel - 2])  # (du/dx)el = 0
+
+    # backward
+    u[Nel - 1] = b[Nel - 1]
+    for i in range(Nel - 1, 0, -1):
+        u[i - 1] = a[i - 1] * u[i] + b[i - 1]
+
+    return u
+
 def continuity(u, nprev, Nel, Nx):
 
     """
@@ -254,6 +302,7 @@ def main():
     ni = [0 for k in range(0, Nx)]
     ne = [0 for k in range(0, Nx)]
     ui = [0 for k in range(0, Nx)]
+    ue = [0 for k in range(0, Nx)]
 
     Psi = [0 for k in range(0, Nx)]
     Ni = [0 for k in range(0, Nx)]
@@ -291,20 +340,27 @@ def main():
         ni[i] = Ni[i]*n0
         ne[i] = n0*m.exp(e*V[i]/kTe)
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
+        ue[i] = n0 * m.sqrt(kTe / me) / ne[i]
 
+
+    # dynamic calculations
 
     ui_1 = [0 for k in range(0, Nx)]
     V_1 = [0 for k in range(0, Nx)]
     ni_1 = [0 for k in range(0, Nx)]
     ne_1 = [0 for k in range(0, Nx)]
+    ue_1 = [0 for k in range(0, Nx)]
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)
     Vel = V[Nel-1]
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx)
+    ue_1 = momentum_e(V_1, ne, ue, kTe, n0, Nel, Nx)
     ni_1 = continuity(ui_1, ni, Nel, Nx)
-    for i in range(0, Nel):
-        ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
+    ne_1 = continuity(ue_1, ne, Nel, Nx)
+
+    #for i in range(0, Nel):
+        #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
     #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * 2 * dt)
     Vel2 = V[Nel-1]
@@ -312,7 +368,11 @@ def main():
 
     V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
     ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx)
+    ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, n0, Nel, Nx)
     ni_2 = continuity(ui_2, ni_1, Nel, Nx)
+    ne_2 = continuity(ue_2, ne_1, Nel, Nx)
+
+    """
     for i in range(0, Nel):
         ne_2[i] = n0*m.exp(e*V_2[i]/kTe)
 
@@ -325,7 +385,7 @@ def main():
     ni_3 = continuity(ui_3, ni_2, Nel, Nx)
     for i in range(0, Nel):
         ne_3[i] = n0 * m.exp(e * V_3[i] / kTe)
-
+    """
     #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
     #for i in range(Nsh, Nx):
         #Ni_1[i] = FN(Psi_1[i])
@@ -352,28 +412,34 @@ def main():
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
     plt.plot(x, V_2, 'g')
-    plt.plot(x, V_3, 'm')
+    #plt.plot(x, V_3, 'm')
     plt.ylabel('V')
     plt.show()
 
     plt.plot(x, ni, 'r')
     plt.plot(x, ni_1, 'b')
     plt.plot(x, ni_2, 'g')
-    plt.plot(x, ni_3, 'm')
+    #plt.plot(x, ni_3, 'm')
     plt.ylabel('Ni')
     plt.show()
 
     plt.plot(x, ne, 'r')
     plt.plot(x, ne_1, 'b')
     plt.plot(x, ne_2, 'g')
-    plt.plot(x, ne_3, 'm')
+    #plt.plot(x, ne_3, 'm')
     plt.ylabel('Ne')
     plt.show()
 
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
     plt.plot(x, ui_2, 'g')
-    plt.plot(x, ui_3, 'm')
+    #plt.plot(x, ui_3, 'm')
+    plt.ylabel('u')
+    plt.show()
+
+    plt.plot(x, ue, 'r')
+    plt.plot(x, ue_1, 'b')
+    plt.plot(x, ue_2, 'g')
     plt.ylabel('u')
     plt.show()
 
