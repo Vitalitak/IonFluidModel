@@ -72,7 +72,9 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
         i=i+1
 
-    return Psi
+    Nel = i + 1
+
+    return Psi, Nel
 
 
 def main():
@@ -133,7 +135,7 @@ def main():
     print(quad(FN, 0, -1)[0])
     """
 
-    Psi = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN)
+    Psi, Nel = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN)
 
     #for i in range(0, NPsi):
         #xNi[i] = FN(xPsi[i])
@@ -196,6 +198,10 @@ def main():
     f = open("ui.txt", "w")
     for d in ui:
         f.write(f"{d}\n")
+    f.close()
+
+    f = open("Nel.txt", "w")
+    f.write(f"{Nel}\n")
     f.close()
 
     return 0
