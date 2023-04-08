@@ -178,6 +178,26 @@ def main():
     plt.ylabel('u')
     plt.show()
 
+    f = open("V.txt", "w")
+    for d in V:
+        f.write(f"{d}\n")
+    f.close()
+
+    f = open("ni.txt", "w")
+    for d in ni:
+        f.write(f"{d}\n")
+    f.close()
+
+    f = open("ne.txt", "w")
+    for d in ne:
+        f.write(f"{d}\n")
+    f.close()
+
+    f = open("ui.txt", "w")
+    for d in ui:
+        f.write(f"{d}\n")
+    f.close()
+
     return 0
 
 
