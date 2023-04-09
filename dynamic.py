@@ -297,6 +297,56 @@ def main():
 
     Nt = int(tEnd / dt)
 
+    # stationary system for initial conditions
+
+    # read initial conditions from file
+
+    x = [k * dx for k in range(0, Nx)]
+    V = [0 for k in range(0, Nx)]
+    ni = [0 for k in range(0, Nx)]
+    ne = [0 for k in range(0, Nx)]
+    ui = [0 for k in range(0, Nx)]
+    ue = [0 for k in range(0, Nx)]
+
+    i=0
+
+    with open("V.txt", "r") as f1:
+        for line in f1.readlines():
+            #print(line.split())
+            V[i] = [float(ind) for ind in line.split()]
+            i +=1
+            #print(V)
+    f1.close()
+    print(V)
+    i = 0
+    with open("ni.txt", "r") as f2:
+        for line in f2.readlines():
+            ni[i] = [float(ind) for ind in line.split()]
+            i += 1
+    f2.close()
+    i = 0
+
+    with open("ne.txt", "r") as f3:
+        for line in f3.readlines():
+            ne[i] = [float(ind) for ind in line.split()]
+            i += 1
+    f3.close()
+    i = 0
+
+    with open("ui.txt", "r") as f4:
+        for line in f4.readlines():
+            ui[i] = [float(ind) for ind in line.split()]
+    f4.close()
+    i = 0
+
+    with open("Nel.txt", "r") as f5:
+        f5.readline()
+        Nel = float(line)
+    f5.close()
+    print(Nel)
+
+
+    """
     x = [k * dx for k in range(0, Nx)]
     V = [0 for k in range(0, Nx)]
     ni = [0 for k in range(0, Nx)]
@@ -315,19 +365,7 @@ def main():
 
     FN = inversefunc(FPsi, domain=[0.001, 1])
 
-    """
-    res, err = quad(FN, 0, -1)
-    print(print("The numerical result is {:f} (+-{:g})"
-    .format(res, err)))
-    print(quad(FN, 0, -1)[0])
-    """
-
     Psi, Nel = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN)
-
-    #for i in range(0, NPsi):
-        #xNi[i] = FN(xPsi[i])
-        #intNx[i] = quad(FN, 0, xPsi[i])[0]
-
 
     for i in range(Nsh, Nx):
         Ni[i] = FN(Psi[i])
@@ -341,7 +379,7 @@ def main():
         ne[i] = n0*m.exp(e*V[i]/kTe)
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
         ue[i] = n0 * m.sqrt(kTe / me) / ne[i]
-
+    """
 
     # dynamic calculations
 
@@ -396,7 +434,7 @@ def main():
         ui_1[i] = n0 * m.sqrt(kTi / mi) / ni_1[i]
     #ui_m = momentum(V_1, ni, ui, mi, kTi, boxsize, dt)
     """
-
+    """
     plt.plot(x, Psi)
     plt.ylabel('Psi')
     plt.show()
@@ -408,6 +446,8 @@ def main():
     plt.plot(x, dPsidx)
     plt.ylabel('dPsi/dx')
     plt.show()
+    """
+
 
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
