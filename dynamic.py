@@ -346,6 +346,10 @@ def main():
             Nel = int(line)
     f5.close()
 
+    # initial conditions for ue
+    #for i in range(0, Nx):
+        #ue[i] = n0 * m.sqrt(kTe / me) / ne[i]
+
 
     """
     x = [k * dx for k in range(0, Nx)]
