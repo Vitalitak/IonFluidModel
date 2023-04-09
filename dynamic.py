@@ -312,30 +312,32 @@ def main():
 
     with open("V.txt", "r") as f1:
         for line in f1.readlines():
-            #print(line.split())
-            V[i] = [float(ind) for ind in line.split()]
-            i +=1
-            #print(V)
+            for ind in line.split():
+                V[i] = float(ind)
+                i +=1
     f1.close()
-    print(V)
     i = 0
     with open("ni.txt", "r") as f2:
         for line in f2.readlines():
-            ni[i] = [float(ind) for ind in line.split()]
-            i += 1
+            for ind in line.split():
+                ni[i] = float(ind)
+                i += 1
     f2.close()
     i = 0
 
     with open("ne.txt", "r") as f3:
         for line in f3.readlines():
-            ne[i] = [float(ind) for ind in line.split()]
-            i += 1
+            for ind in line.split():
+                ne[i] = float(ind)
+                i += 1
     f3.close()
     i = 0
 
     with open("ui.txt", "r") as f4:
         for line in f4.readlines():
-            ui[i] = [float(ind) for ind in line.split()]
+            for ind in line.split():
+                ui[i] = float(ind)
+                i += 1
     f4.close()
     i = 0
 
