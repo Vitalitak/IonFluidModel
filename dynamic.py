@@ -340,10 +340,9 @@ def main():
     i = 0
 
     with open("Nel.txt", "r") as f5:
-        f5.readline()
-        Nel = float(line)
+        for line in f5.readlines():
+            Nel = int(line)
     f5.close()
-    print(Nel)
 
 
     """
