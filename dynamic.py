@@ -157,8 +157,8 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx):
     b[0] = 0
 
     for i in range(1, Nel - 1):
-        a[i] = uprev[i+1] / 4.0 / dx / (-1 / dt + uprev[i - 1] * a[i-1] / 4.0 / dx)
-        b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] + kTe*(Psi[i+1]-Psi[i]) /dx/mi - uprev[i] / dt - kTi/mi*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
+        a[i] = -uprev[i+1]*dt / 4.0 / dx / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
+        b[i] = (uprev[i-1]*dt / 4.0 / dx * b[i - 1] - kTe/mi*dt*(Psi[i+1]-Psi[i]) /dx - kTi/mi*dt*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx + uprev[i]) / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
 
     # boundary condition on electrode surface: (du/dx)el = 0
     a[Nel - 1] = 0
@@ -173,7 +173,7 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx):
 
     return u
 
-def momentum_e(V, n, uprev, kTe, n0, Nel, Nx):
+def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx):
 
     """
     sweep method solution of momentum balance equation
@@ -182,7 +182,7 @@ def momentum_e(V, n, uprev, kTe, n0, Nel, Nx):
     dx = 1E-7
     e = 1.6E-19
     me = 9.11E-31  # kg
-    gamma = 5 / 3
+    gamma = 1+de
     u = [0 for k in range(0, Nx)]
 
     Psi = [0 for k in range(0, Nel)]
@@ -204,8 +204,8 @@ def momentum_e(V, n, uprev, kTe, n0, Nel, Nx):
     b[0] = 0
 
     for i in range(1, Nel - 1):
-        a[i] = uprev[i+1] / 4.0 / dx / (-1 / dt + uprev[i - 1] * a[i-1] / 4.0 / dx)
-        b[i] = (-uprev[i-1] / 4.0 / dx * b[i - 1] - kTe*(Psi[i+1]-Psi[i]) /dx/me - uprev[i] / dt - kTe/me*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx) / (-1 / dt + uprev[i-1] * a[i-1] / 4.0 / dx)
+        a[i] = -uprev[i+1]*dt / 4.0 / dx / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
+        b[i] = (uprev[i-1]*dt / 4.0 / dx * b[i - 1] + kTe/me*dt*(Psi[i+1]-Psi[i]) /dx - kTe/me*dt*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx + uprev[i]) / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
         print(b[i])
 
     # boundary condition on electrode surface: (du/dx)el = 0
@@ -399,7 +399,7 @@ def main():
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx)
-    ue_1 = momentum_e(V_1, ne, ue, kTe, n0, Nel, Nx)
+    ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx)
     ni_1 = continuity(ui_1, ni, Nel, Nx)
     ne_1 = continuity(ue_1, ne, Nel, Nx)
 
