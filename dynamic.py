@@ -288,7 +288,7 @@ def main():
     C = 1.4E-16
     C /= 1.6E-19
     gamma = 5/3
-    de = 0.232
+    de = 0.23277
 
 
     kTi = Ti * 1.6E-19  # J
@@ -454,7 +454,17 @@ def main():
     plt.ylabel('dPsi/dx')
     plt.show()
     """
+    Ii = [0 for k in range(0, Nx)]
+    Ie = [0 for k in range(0, Nx)]
 
+    for i in range(0, Nx):
+        Ii[i] = ni[i]*ui[i]
+        Ie[i] = ne[i]*ue[i]
+
+    plt.plot(x, Ii, 'r')
+    plt.plot(x, Ie, 'b')
+    plt.ylabel('I')
+    plt.show()
 
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
