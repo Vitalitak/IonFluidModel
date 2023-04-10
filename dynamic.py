@@ -126,12 +126,12 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
 
     return V
 
-def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx):
+def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
 
     """
     sweep method solution of momentum balance equation
     """
-    dt = 1E-11  # s
+    #dt = 1E-11  # s
     dx = 1E-7
     e = 1.6E-19
     mi = 6.68E-26  # kg
@@ -173,12 +173,12 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx):
 
     return u
 
-def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx):
+def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
 
     """
     sweep method solution of momentum balance equation
     """
-    dt = 1E-11  # s
+    #dt = 1E-11  # s
     dx = 1E-7
     e = 1.6E-19
     me = 9.11E-31  # kg
@@ -221,13 +221,13 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx):
 
     return u
 
-def continuity(u, nprev, Nel, Nx):
+def continuity(u, nprev, Nel, Nx, dt):
 
     """
     sweep method solution of continuity equation
     """
 
-    dt = 1E-11  # s
+    #dt = 1E-11  # s
     dx = 1E-7
     n = [0 for k in range(0, Nx)]
 
@@ -267,7 +267,7 @@ def main():
     # initialisation of parameters
     boxsize = 3.5E-4  # m
     #a = 1E-6
-    dt = 1E-11 # s
+    dt = 1E-13 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
     #Nsh = int(a/dx)
@@ -288,7 +288,7 @@ def main():
     C = 1.4E-16
     C /= 1.6E-19
     gamma = 5/3
-    de = 0.23277
+    de = 0.232775
 
 
     kTi = Ti * 1.6E-19  # J
@@ -398,29 +398,27 @@ def main():
     Vel = V[Nel-1]
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
-    ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx)
-    ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx)
-    ni_1 = continuity(ui_1, ni, Nel, Nx)
-    ne_1 = continuity(ue_1, ne, Nel, Nx)
+    ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx, dt)
+    ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
+    ni_1 = continuity(ui_1, ni, Nel, Nx, dt)
+    ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
 
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    """
+
     #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * 2 * dt)
     Vel2 = V[Nel-1]
     ne_2 = [0 for k in range(0, Nx)]
 
     V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
-    ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx)
-    ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, n0, Nel, Nx)
-    ni_2 = continuity(ui_2, ni_1, Nel, Nx)
-    ne_2 = continuity(ue_2, ne_1, Nel, Nx)
+    ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
+    ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
+    ni_2 = continuity(ui_2, ni_1, Nel, Nx, dt)
+    ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
 
-    
-    for i in range(0, Nel):
-        ne_2[i] = n0*m.exp(e*V_2[i]/kTe)
 
+    """
     #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * 3 * dt)
     Vel3 = V[Nel-1]
     ne_3 = [0 for k in range(0, Nx)]
@@ -468,35 +466,35 @@ def main():
 
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
-    #plt.plot(x, V_2, 'g')
+    plt.plot(x, V_2, 'g')
     #plt.plot(x, V_3, 'm')
     plt.ylabel('V')
     plt.show()
 
     plt.plot(x, ni, 'r')
     plt.plot(x, ni_1, 'b')
-    #plt.plot(x, ni_2, 'g')
+    plt.plot(x, ni_2, 'g')
     #plt.plot(x, ni_3, 'm')
     plt.ylabel('Ni')
     plt.show()
 
     plt.plot(x, ne, 'r')
     plt.plot(x, ne_1, 'b')
-    #plt.plot(x, ne_2, 'g')
+    plt.plot(x, ne_2, 'g')
     #plt.plot(x, ne_3, 'm')
     plt.ylabel('Ne')
     plt.show()
 
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
-    #plt.plot(x, ui_2, 'g')
+    plt.plot(x, ui_2, 'g')
     #plt.plot(x, ui_3, 'm')
     plt.ylabel('u')
     plt.show()
 
     plt.plot(x, ue, 'r')
     plt.plot(x, ue_1, 'b')
-    #plt.plot(x, ue_2, 'g')
+    plt.plot(x, ue_2, 'g')
     plt.ylabel('u')
     plt.show()
 
