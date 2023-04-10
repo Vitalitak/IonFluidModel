@@ -288,6 +288,7 @@ def main():
     C = 1.4E-16
     C /= 1.6E-19
     gamma = 5/3
+    de = 0.232
 
 
     kTi = Ti * 1.6E-19  # J
@@ -347,8 +348,8 @@ def main():
     f5.close()
 
     # initial conditions for ue
-    #for i in range(0, Nx):
-        #ue[i] = n0 * m.sqrt(kTe / me) / ne[i]
+    for i in range(0, Nx):
+        ue[i] = m.sqrt(kTe / me) * m.sqrt(3+2*e*V[i]/kTe+2*(de+1)/de*(1-m.exp(de*e*V[i]/kTe)))
 
 
     """
@@ -405,6 +406,7 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
+    """
     #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * 2 * dt)
     Vel2 = V[Nel-1]
     ne_2 = [0 for k in range(0, Nx)]
@@ -415,7 +417,7 @@ def main():
     ni_2 = continuity(ui_2, ni_1, Nel, Nx)
     ne_2 = continuity(ue_2, ne_1, Nel, Nx)
 
-    """
+    
     for i in range(0, Nel):
         ne_2[i] = n0*m.exp(e*V_2[i]/kTe)
 
@@ -456,35 +458,35 @@ def main():
 
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
-    plt.plot(x, V_2, 'g')
+    #plt.plot(x, V_2, 'g')
     #plt.plot(x, V_3, 'm')
     plt.ylabel('V')
     plt.show()
 
     plt.plot(x, ni, 'r')
     plt.plot(x, ni_1, 'b')
-    plt.plot(x, ni_2, 'g')
+    #plt.plot(x, ni_2, 'g')
     #plt.plot(x, ni_3, 'm')
     plt.ylabel('Ni')
     plt.show()
 
     plt.plot(x, ne, 'r')
     plt.plot(x, ne_1, 'b')
-    plt.plot(x, ne_2, 'g')
+    #plt.plot(x, ne_2, 'g')
     #plt.plot(x, ne_3, 'm')
     plt.ylabel('Ne')
     plt.show()
 
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
-    plt.plot(x, ui_2, 'g')
+    #plt.plot(x, ui_2, 'g')
     #plt.plot(x, ui_3, 'm')
     plt.ylabel('u')
     plt.show()
 
     plt.plot(x, ue, 'r')
     plt.plot(x, ue_1, 'b')
-    plt.plot(x, ue_2, 'g')
+    #plt.plot(x, ue_2, 'g')
     plt.ylabel('u')
     plt.show()
 
