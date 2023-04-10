@@ -267,7 +267,7 @@ def main():
     # initialisation of parameters
     boxsize = 3.5E-4  # m
     #a = 1E-6
-    dt = 1E-13 # s
+    dt = 1E-14 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
     #Nsh = int(a/dx)
@@ -285,10 +285,10 @@ def main():
     Ti = 0.06  # eV
     n0 = 4E17  # m-3
     Vdc = -12
-    C = 1.4E-16
-    C /= 1.6E-19
+    C = 1E-10
+    #C /= 1.6E-19
     gamma = 5/3
-    de = 0.232775
+    de = 0.23277675
 
 
     kTi = Ti * 1.6E-19  # J
@@ -394,50 +394,55 @@ def main():
     ni_1 = [0 for k in range(0, Nx)]
     ne_1 = [0 for k in range(0, Nx)]
     ue_1 = [0 for k in range(0, Nx)]
-    #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)
-    Vel = V[Nel-1]
+    q = 0
+    Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
+    #Vel = V[Nel-1]
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx, dt)
     ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
     ni_1 = continuity(ui_1, ni, Nel, Nx, dt)
     ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
+    q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
 
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
+    for i in range(2, 100):
 
-    #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * 2 * dt)
-    Vel2 = V[Nel-1]
-    ne_2 = [0 for k in range(0, Nx)]
+        Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
+        #Vel2 = V[Nel-1]
 
-    V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
-    ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
-    ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
-    ni_2 = continuity(ui_2, ni_1, Nel, Nx, dt)
-    ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
+        V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
+        ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
+        ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
+        ni_2 = continuity(ui_2, ni_1, Nel, Nx, dt)
+        ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
+        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
 
 
-    """
-    #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * 3 * dt)
-    Vel3 = V[Nel-1]
-    ne_3 = [0 for k in range(0, Nx)]
 
-    V_3 = Pois(ne_2, ni_2, Vel3, dx, Nel, Nx)
-    ui_3 = momentum(V_3, ni_2, ui_2, kTi, kTe, n0, Nel, Nx)
-    ni_3 = continuity(ui_3, ni_2, Nel, Nx)
-    for i in range(0, Nel):
-        ne_3[i] = n0 * m.exp(e * V_3[i] / kTe)
+        Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
+        #Vel3 = V[Nel-1]
+
+        V_1 = Pois(ne_2, ni_2, Vel3, dx, Nel, Nx)
+        ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
+        ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
+        ni_1 = continuity(ui_1, ni_2, Nel, Nx, dt)
+        ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
+
+
     """
     #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
     #for i in range(Nsh, Nx):
         #Ni_1[i] = FN(Psi_1[i])
-    """
+    
+    
     for i in range(0, Nx):
         V_1[i] = Psi_1[i]*kTe/e
         ni_1[i] = Ni_1[i]*n0
         ui_1[i] = n0 * m.sqrt(kTi / mi) / ni_1[i]
-    #ui_m = momentum(V_1, ni, ui, mi, kTi, boxsize, dt)
     """
     """
     plt.plot(x, Psi)
@@ -466,35 +471,36 @@ def main():
 
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
-    plt.plot(x, V_2, 'g')
+    #plt.plot(x, V_2, 'g')
     #plt.plot(x, V_3, 'm')
     plt.ylabel('V')
     plt.show()
 
     plt.plot(x, ni, 'r')
     plt.plot(x, ni_1, 'b')
-    plt.plot(x, ni_2, 'g')
+    #plt.plot(x, ni_2, 'g')
     #plt.plot(x, ni_3, 'm')
     plt.ylabel('Ni')
     plt.show()
 
     plt.plot(x, ne, 'r')
     plt.plot(x, ne_1, 'b')
-    plt.plot(x, ne_2, 'g')
+    #plt.plot(x, ne_2, 'g')
     #plt.plot(x, ne_3, 'm')
     plt.ylabel('Ne')
     plt.show()
 
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
-    plt.plot(x, ui_2, 'g')
+    #plt.plot(x, ui_2, 'g')
     #plt.plot(x, ui_3, 'm')
     plt.ylabel('u')
     plt.show()
 
     plt.plot(x, ue, 'r')
     plt.plot(x, ue_1, 'b')
-    plt.plot(x, ue_2, 'g')
+    #plt.plot(x, ue_2, 'g')
+    #plt.plot(x, ue_3, 'm')
     plt.ylabel('u')
     plt.show()
 
