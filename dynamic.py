@@ -410,8 +410,8 @@ def main():
 
     for i in range(2, 50):
 
-        Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
-        #Vel2 = V[Nel-1]
+        #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
+        Vel2 = V[Nel-1] + q
 
         V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
         ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
@@ -422,8 +422,8 @@ def main():
 
 
 
-        Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
-        #Vel3 = V[Nel-1]
+        #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
+        Vel3 = V[Nel-1] + q
 
         V_1 = Pois(ne_2, ni_2, Vel3, dx, Nel, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
