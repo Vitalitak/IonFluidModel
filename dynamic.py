@@ -288,7 +288,7 @@ def main():
     C = 1E-10
     #C /= 1.6E-19
     gamma = 5/3
-    de = 0.23277675
+    de = 0.23277685
 
 
     kTi = Ti * 1.6E-19  # J
@@ -395,8 +395,8 @@ def main():
     ne_1 = [0 for k in range(0, Nx)]
     ue_1 = [0 for k in range(0, Nx)]
     q = 0
-    Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
-    #Vel = V[Nel-1]
+    #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
+    Vel = V[Nel-1]+q
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx, dt)
@@ -409,7 +409,7 @@ def main():
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
     for i in range(2, 50):
-
+        print(q)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
 
