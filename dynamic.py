@@ -206,7 +206,7 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
     for i in range(1, Nel - 1):
         a[i] = -uprev[i+1]*dt / 4.0 / dx / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
         b[i] = (uprev[i-1]*dt / 4.0 / dx * b[i - 1] + kTe/me*dt*(Psi[i+1]-Psi[i]) /dx - kTe/me*dt*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx + uprev[i]) / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
-        print(b[i])
+        #print(b[i])
 
     # boundary condition on electrode surface: (du/dx)el = 0
     a[Nel - 1] = 0
@@ -408,7 +408,7 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 100):
+    for i in range(2, 50):
 
         Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         #Vel2 = V[Nel-1]
