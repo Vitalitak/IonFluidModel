@@ -104,10 +104,10 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     # boundary conditions on plasma surface: (dV/dx)pl = 0 or (V)pl = 0
     #a[0] = 0.5
     #b[0] = 0.5 * (ne[0] - ni[0]) * dx * dx
-    a[0] = 0
-    b[0] = 0
-    #a[0] = 1
+    #a[0] = 0
     #b[0] = 0
+    a[0] = 1
+    b[0] = 0
 
     for i in range(1, Nel-1):
         a[i] = -1 / (-2+a[i-1])
@@ -144,7 +144,7 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
     for i in range(0, Nel):
         Psi[i] = e*V[i]/kTe
         N[i] = n[i]/n0
-
+    """
     # initialisation of sweeping coefficients
     a = [0 for k in range(0, Nel)]
     b = [0 for k in range(0, Nel)]
@@ -170,17 +170,17 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
     u[Nel - 1] = b[Nel - 1]
     for i in range(Nel - 1, 0, -1):
         u[i - 1] = a[i - 1] * u[i] + b[i - 1]
-
-
     """
+
+
     # Explicit conservative upwind scheme
     
-    u[0] = m.sqrt(3 * kTi / mi)
+    u[0] = m.sqrt(kTi / mi)
 
     for i in range(1, Nel):
-        u[i] = uprev[i] + dt * (-kTe / mi * dt * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * dt * m.pow(N[i], gamma - 2) * (
+        u[i] = uprev[i] + dt * (-kTe / mi * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * m.pow(N[i], gamma - 2) * (
                     N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx)
-    """
+
 
     return u
 
@@ -235,9 +235,9 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
     u[0] = m.sqrt(3*kTe/me)
 
     for i in range(1, Nel):
-        u[i] = uprev[i]+dt*(kTe/me*dt*(Psi[i]-Psi[i-1]) /dx - kTe/me*dt*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/2/dx)
+        u[i] = uprev[i]+dt*(kTe/me*(Psi[i]-Psi[i-1]) /dx - kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/2/dx)
 
-    print(u[Nel-1])
+    #print(u[Nel-1])
 
 
     return u
@@ -429,8 +429,8 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 1000):
-        #print(q)
+    for i in range(2, 200):
+        print(q)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
 
@@ -445,12 +445,19 @@ def main():
 
         #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
         Vel3 = V[Nel-1] + q
-
+        """
         V_1 = Pois(ne_2, ni_2, Vel3, dx, Nel, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
         ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
         ni_1 = continuity(ui_1, ni_2, Nel, Nx, dt)
         ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
+        """
+        ne_1 = continuity(ue_2, ne_2, Nel, Nx, dt)
+        ni_1 = continuity(ui_2, ni_2, Nel, Nx, dt)
+        ue_1 = momentum_e(V_2, ne_1, ue_2, kTe, de, n0, Nel, Nx, dt)
+        ui_1 = momentum(V_2, ni_1, ui_2, kTi, kTe, n0, Nel, Nx, dt)
+        V_1 = Pois(ne_1, ni_1, Vel3, dx, Nel, Nx)
+
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
 
 
