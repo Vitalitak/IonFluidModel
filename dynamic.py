@@ -235,8 +235,9 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
     u[0] = m.sqrt(3*kTe/me)
 
     for i in range(1, Nel):
-        u[i] = uprev[i]+dt*(kTe/me*dt*(Psi[i]-Psi[i-1]) /dx - kTe/me*dt*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/dx)
-        #print(u[i])
+        u[i] = uprev[i]+dt*(kTe/me*dt*(Psi[i]-Psi[i-1]) /dx - kTe/me*dt*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/2/dx)
+
+    print(u[Nel-1])
 
 
     return u
@@ -428,8 +429,8 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 500):
-        print(q)
+    for i in range(2, 1000):
+        #print(q)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
 
