@@ -191,7 +191,7 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
     for i in range(0, Nel):
         Psi[i] = e*V[i]/kTe
         N[i] = n[i]/n0
-
+    """
     # initialisation of sweeping coefficients
     a = [0 for k in range(0, Nel)]
     b = [0 for k in range(0, Nel)]
@@ -218,6 +218,13 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
     u[Nel - 1] = b[Nel - 1]
     for i in range(Nel - 1, 0, -1):
         u[i - 1] = a[i - 1] * u[i] + b[i - 1]
+    """
+    u[0] = m.sqrt(3*kTe/me)
+
+    for i in range(1, Nx-1):
+        u[i] = uprev[i]+dt*(kTe/me*dt*(Psi[i]-Psi[i-1]) /dx - kTe/me*dt*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/dx)
+        print(u[i])
+
 
     return u
 
