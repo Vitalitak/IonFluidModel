@@ -219,6 +219,8 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
     for i in range(Nel - 1, 0, -1):
         u[i - 1] = a[i - 1] * u[i] + b[i - 1]
     """
+    # Explicit conservative upwind scheme
+
     u[0] = m.sqrt(3*kTe/me)
 
     for i in range(1, Nx-1):
