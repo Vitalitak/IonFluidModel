@@ -101,13 +101,13 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     b = [0 for k in range(0, Nel)]
 
     # forward
-    # boundary conditions on plasma surface: (dV/dx)pl = 0
+    # boundary conditions on plasma surface: (dV/dx)pl = 0 or (V)pl = 0
     #a[0] = 0.5
     #b[0] = 0.5 * (ne[0] - ni[0]) * dx * dx
-    #a[0] = 0
-    #b[0] = 0
-    a[0] = 1
+    a[0] = 0
     b[0] = 0
+    #a[0] = 1
+    #b[0] = 0
 
     for i in range(1, Nel-1):
         a[i] = -1 / (-2+a[i-1])
@@ -170,6 +170,17 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
     u[Nel - 1] = b[Nel - 1]
     for i in range(Nel - 1, 0, -1):
         u[i - 1] = a[i - 1] * u[i] + b[i - 1]
+
+
+    """
+    # Explicit conservative upwind scheme
+    
+    u[0] = m.sqrt(3 * kTi / mi)
+
+    for i in range(1, Nel):
+        u[i] = uprev[i] + dt * (-kTe / mi * dt * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * dt * m.pow(N[i], gamma - 2) * (
+                    N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx)
+    """
 
     return u
 
@@ -297,7 +308,7 @@ def main():
     C = 1E-10
     #C /= 1.6E-19
     gamma = 5/3
-    de = 0.2327768
+    de = 0.232777
 
 
     kTi = Ti * 1.6E-19  # J
@@ -417,7 +428,7 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 1000):
+    for i in range(2, 500):
         print(q)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
