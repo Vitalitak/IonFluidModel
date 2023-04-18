@@ -237,7 +237,7 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
     for i in range(1, Nel):
         u[i] = uprev[i]+dt*(kTe/me*(Psi[i]-Psi[i-1]) /dx - kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/2/dx)
 
-    print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
+    #print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
     #print(kTe/me*m.pow(N[Nel-1], gamma-2)*(N[Nel-1]-N[Nel-2])/dx)
     #print((uprev[Nel-1]*uprev[Nel-1]-uprev[Nel-2]*uprev[Nel-2])/2/dx)
 
@@ -311,7 +311,7 @@ def main():
     C = 1E-10
     #C /= 1.6E-19
     gamma = 5/3
-    de = 0.232777
+    de = 0.2327775
 
 
     kTi = Ti * 1.6E-19  # J
@@ -428,6 +428,7 @@ def main():
     ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
 
+    print(e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
@@ -462,6 +463,8 @@ def main():
 
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
 
+        print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
+
 
     """
     #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
@@ -493,6 +496,8 @@ def main():
     for i in range(0, Nx):
         Ii[i] = ni[i]*ui[i]
         Ie[i] = ne[i]*ue[i]
+
+    #print(Ii[Nel-1]-Ie[Nel-1])
 
     plt.plot(x, Ii, 'r')
     plt.plot(x, Ie, 'b')
