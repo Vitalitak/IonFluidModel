@@ -238,9 +238,10 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
         u[i] = uprev[i]+dt*(kTe/me*(Psi[i]-Psi[i-1]) /dx - kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/2/dx)
         #print(- kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx)
 
+    #print(u[Nel-1])
     #print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
     #print(kTe/me*m.pow(N[Nel-1], gamma-2)*(N[Nel-1]-N[Nel-2])/dx)
-    #print((uprev[Nel-1]*uprev[Nel-1]-uprev[Nel-2]*uprev[Nel-2])/2/dx)
+    print((uprev[Nel-1]*uprev[Nel-1]-uprev[Nel-2]*uprev[Nel-2])/2/dx)
 
 
     return u
@@ -429,11 +430,11 @@ def main():
     ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
 
-    print(e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C)
+    #print(e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 300):
+    for i in range(2, 200):
         #print(q)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
@@ -465,7 +466,7 @@ def main():
         """
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
 
-        print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
+        #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
 
     """
