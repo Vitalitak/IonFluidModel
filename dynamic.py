@@ -239,9 +239,9 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
         #print(- kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx)
 
     #print(u[Nel-1])
-    #print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
+    print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
     #print(kTe/me*m.pow(N[Nel-1], gamma-2)*(N[Nel-1]-N[Nel-2])/dx)
-    print((uprev[Nel-1]*uprev[Nel-1]-uprev[Nel-2]*uprev[Nel-2])/2/dx)
+    #print(-(uprev[Nel-1]*uprev[Nel-1]-uprev[Nel-2]*uprev[Nel-2])/2/dx)
 
 
     return u
