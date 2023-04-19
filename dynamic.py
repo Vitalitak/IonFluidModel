@@ -236,6 +236,7 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
 
     for i in range(1, Nel):
         u[i] = uprev[i]+dt*(kTe/me*(Psi[i]-Psi[i-1]) /dx - kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/2/dx)
+        #print(- kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx)
 
     #print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
     #print(kTe/me*m.pow(N[Nel-1], gamma-2)*(N[Nel-1]-N[Nel-2])/dx)
@@ -272,12 +273,12 @@ def continuity(u, nprev, Nel, Nx, dt):
         a[i] = -u[i] / (2*(dx/dt+u[i+1]-u[i]) - u[i]*a[i-1])
         b[i] = (u[i]/2.0/dx*b[i-1]+nprev[i]/dt) / ((1/dt+(u[i+1]-u[i])/dx) - u[i]/2.0/dx*a[i-1])
 
-    # boundary condition on electrode surface: (dn/dt)el = 0
+    # boundary condition on electrode surface: (dn/dx)el = (dn/dx)0
     a[Nel - 1] = 0
     #b[Nx - 1] = (-u[Nx - 1]/2.0/dx*b[Nx-2]-nprev[Nx-1]/dt) / ((-1/dt-(u[Nx-1]-u[Nx-2])/dx) + u[Nx-1]/2.0/dx*a[Nx-2]) # boundary conditions for u (u[Nx-1]-u[Nx-2])
     #b[Nx - 1] = nprev[Nx - 1] + dn  # (dn/dt)p = dn0/dt
     #b[Nx - 1] = nprev[Nx - 1]  # (n)p = np (dn/dt)p = 0
-    b[Nel - 1] = b[Nel - 2] / (1 - a[Nel - 2])
+    b[Nel - 1] = (b[Nel - 2] + nprev[Nel - 1] - nprev[Nel - 2]) / (1 - a[Nel - 2])
 
     # backward
     n[Nel - 1] = b[Nel - 1]
@@ -432,7 +433,7 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 250):
+    for i in range(2, 300):
         #print(q)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
@@ -448,19 +449,20 @@ def main():
 
         #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
         Vel3 = V[Nel-1] + q
-        """
+
         V_1 = Pois(ne_2, ni_2, Vel3, dx, Nel, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
         ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
         ni_1 = continuity(ui_1, ni_2, Nel, Nx, dt)
         ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
+
         """
         ne_1 = continuity(ue_2, ne_2, Nel, Nx, dt)
         ni_1 = continuity(ui_2, ni_2, Nel, Nx, dt)
         ue_1 = momentum_e(V_2, ne_1, ue_2, kTe, de, n0, Nel, Nx, dt)
         ui_1 = momentum(V_2, ni_1, ui_2, kTi, kTe, n0, Nel, Nx, dt)
         V_1 = Pois(ne_1, ni_1, Vel3, dx, Nel, Nx)
-
+        """
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
 
         print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
