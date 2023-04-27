@@ -586,6 +586,13 @@ def main():
     plt.ylabel('u')
     plt.show()
 
+    cur = [0 for i in range(0, Nx)]
+    for i in range(0, Nel):
+        cur[i] = ni_1[i] * ui_1[i] - ne_1[i] * ue_1[i]
+
+    plt.plot(x, cur, 'r')
+    plt.show()
+
     return 0
 
 
