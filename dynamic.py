@@ -1,6 +1,7 @@
 import math as m
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.linalg import solve
 from scipy.integrate import quad
 #from sympy import Function, dsolve, Eq, Derivative, exp, symbols
 #from sympy.solvers.ode.systems import dsolve_system
@@ -96,6 +97,7 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     #dx = boxsize / Nx
     V = [0 for k in range(0, Nx)]
 
+
     # initialisation of sweeping coefficients
     a = [0 for k in range(0, Nel)]
     b = [0 for k in range(0, Nel)]
@@ -104,10 +106,10 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     # boundary conditions on plasma surface: (dV/dx)pl = 0 or (V)pl = 0
     #a[0] = 0.5
     #b[0] = 0.5 * (ne[0] - ni[0]) * dx * dx
-    #a[0] = 0
-    #b[0] = 0
-    a[0] = 1
+    a[0] = 0
     b[0] = 0
+    #a[0] = 1
+    #b[0] = 0
 
     for i in range(1, Nel-1):
         a[i] = -1 / (-2+a[i-1])
@@ -118,11 +120,39 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     #b[Nx-1] = (b[Nx-2] - (ne[Nx-1] - ni[Nx-1]) * dx * dx)/(2-a[Nx-2])
     b[Nel-1] = Ve  #  (V)p = 0
     #b[Nx - 1] = b[Nx - 2] / (1 - a[Nx - 2])  # (dV/dx)p = 0
+    print(b[Nel-2])
 
     # backward
     V[Nel-1] = b[Nel-1]
     for i in range(Nel-1, 0, -1):
         V[i-1] = a[i-1]*V[i]-b[i-1]
+
+
+    """
+    V1 = [0 for k in range(0, Nel)]
+    a = np.zeros([Nel, Nel])
+    b = [0 for k in range(0, Nel)]
+
+    a[0, 0] = -1/dx
+    a[0, 1] = 1 / dx
+    #a[0, 0] = 1/dx
+
+    b[0] = 0
+
+    for i in range(1, Nel-1):
+        a[i, i] = -2/dx/dx
+        a[i, i-1] = 1/dx/dx
+        a[i, i+1] = 1/dx/dx
+        b[i] = e / eps0 * (ni[i] - ne[i])
+
+    a[Nel-1, Nel-1] = 1
+    b[Nel-1] = Ve
+    #a[0, 1] = 1 / dx
+
+    V1 = np.linalg.solve(a, b)
+    for i in range(0, Nel):
+        V[i] = V1[i]
+    """
 
     return V
 
@@ -239,7 +269,7 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
         #print(- kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx)
 
     #print(u[Nel-1])
-    print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
+    #print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
     #print(kTe/me*m.pow(N[Nel-1], gamma-2)*(N[Nel-1]-N[Nel-2])/dx)
     #print(-(uprev[Nel-1]*uprev[Nel-1]-uprev[Nel-2]*uprev[Nel-2])/2/dx)
 
@@ -285,6 +315,17 @@ def continuity(u, nprev, Nel, Nx, dt):
     n[Nel - 1] = b[Nel - 1]
     for i in range(Nel - 1, 0, -1):
         n[i - 1] = a[i - 1] * n[i] + b[i - 1]
+
+    return n
+
+def concentration_e(V, kTe, n0, Nel, Nx):
+
+    dx = 1E-7
+    e = 1.6E-19
+    n = [0 for k in range(0, Nx)]
+
+    for i in range(0, Nel):
+        n[i] = n0 * m.exp(e*V[i]/kTe)
 
     return n
 
@@ -427,14 +468,15 @@ def main():
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx, dt)
     ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
     ni_1 = continuity(ui_1, ni, Nel, Nx, dt)
-    ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
+    ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
+    #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
 
     #print(e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 200):
+    for i in range(2, 7):
         #print(q)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
@@ -443,7 +485,8 @@ def main():
         ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
         ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
         ni_2 = continuity(ui_2, ni_1, Nel, Nx, dt)
-        ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
+        ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
+        #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
 
 
@@ -455,7 +498,8 @@ def main():
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
         ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
         ni_1 = continuity(ui_1, ni_2, Nel, Nx, dt)
-        ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
+        ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
+        #ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
 
         """
         ne_1 = continuity(ue_2, ne_2, Nel, Nx, dt)
