@@ -205,11 +205,15 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
 
     # Explicit conservative upwind scheme
     
-    u[0] = m.sqrt(kTi / mi)
+    u[0] = uprev[0]
+    u[1] = uprev[1]
+    u[2] = uprev[2]
 
-    for i in range(1, Nel):
+    for i in range(3, Nel):
         u[i] = uprev[i] + dt * (-kTe / mi * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * m.pow(N[i], gamma - 2) * (
                     N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx)
+        #print(dt * (-kTe / mi * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * m.pow(N[i], gamma - 2) * (
+                    #N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx))
 
 
     return u
@@ -285,6 +289,15 @@ def continuity(u, nprev, Nel, Nx, dt):
     #dt = 1E-11  # s
     dx = 1E-7
     n = [0 for k in range(0, Nx)]
+
+    """
+    N = [0 for k in range(0, Nel)]
+    Nprev = [0 for k in range(0, Nel)]
+
+    for i in range(0, Nel):
+        N[i] = n[i]/nprev[0]
+        Nprev[i] = nprev[i]/nprev[0]
+    """
     """
     # initialisation of sweeping coefficients
     a = [0 for k in range(0, Nel)]
@@ -320,12 +333,21 @@ def continuity(u, nprev, Nel, Nx, dt):
     # Explicit conservative upwind scheme
 
     n[0] = nprev[0]
-
-    for i in range(1, Nel):
-        n[i] = nprev[i] - dt * ((nprev[i]*u[i]-nprev[i-1]*u[i-1])/dx)
-        # print(- kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx)
-
-
+    n[1] = nprev[1]
+    n[2] = nprev[2]
+    """
+    N[0] = Nprev[0]
+    N[1] = Nprev[1]
+    N[2] = Nprev[2]
+    """
+    for i in range(3, Nel):
+        n[i] = nprev[i] - dt * (((nprev[i]-nprev[i-1])*u[i]+(u[i]-u[i-1])*nprev[i])/dx)
+        #print(((nprev[i]-nprev[i-1])*u[i]+(u[i]-u[i-1])*nprev[i]))
+    """
+    for i in range(0, Nel):
+        n[i] = N[i]*nprev[0]
+    """
+    #print(((nprev[3] - nprev[2]) * u[3] + (u[3] - u[2]) * nprev[3]))
     return n
 
 def concentration_e(V, kTe, n0, Nel, Nx):
@@ -487,8 +509,8 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 30000):
-        print(i)
+    for i in range(2, 3):
+        #print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
 
@@ -555,17 +577,19 @@ def main():
     plt.show()
     """
     Ii = [0 for k in range(0, Nx)]
+    Ii_1 = [0 for k in range(0, Nx)]
     Ie = [0 for k in range(0, Nx)]
 
     for i in range(0, Nx):
         Ii[i] = ni[i]*ui[i]
-        Ie[i] = ne[i]*ue[i]
+        Ii_1[i] = ni_1[i]*ui_1[i]
+        #print(ni_1[i]*ui_1[i])
 
     #print(Ii[Nel-1]-Ie[Nel-1])
 
     plt.plot(x, Ii, 'r')
-    plt.plot(x, Ie, 'b')
-    plt.ylabel('I')
+    plt.plot(x, Ii_1, 'b')
+    plt.ylabel('Ii')
     plt.show()
 
     plt.plot(x, V, 'r')
