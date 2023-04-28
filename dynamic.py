@@ -120,7 +120,7 @@ def Pois(ne, ni, Ve, dx, Nel, Nx):
     #b[Nx-1] = (b[Nx-2] - (ne[Nx-1] - ni[Nx-1]) * dx * dx)/(2-a[Nx-2])
     b[Nel-1] = Ve  #  (V)p = 0
     #b[Nx - 1] = b[Nx - 2] / (1 - a[Nx - 2])  # (dV/dx)p = 0
-    print(b[Nel-2])
+    #print(b[Nel-2])
 
     # backward
     V[Nel-1] = b[Nel-1]
@@ -294,10 +294,10 @@ def continuity(u, nprev, Nel, Nx, dt):
     # boundary conditions on plasma surface: (dn/dt)pl = 0
     #a[0] = u[0] / (-1/dt-(u[1]-u[0])/dx)
     #b[0] = -nprev[0] / (-1-(u[1]-u[0])*dt/dx)
-    #a[0] = 0
-    #b[0] = nprev[0]
-    a[0] = 1
-    b[0] = 0
+    a[0] = 0
+    b[0] = nprev[0]
+    #a[0] = 1
+    #b[0] = 0
     #b[0] = nprev[0] - dn
 
     for i in range(1, Nel - 1):
@@ -333,7 +333,7 @@ def main():
     # initialisation of parameters
     boxsize = 3.5E-4  # m
     #a = 1E-6
-    dt = 1E-14 # s
+    dt = 1E-13 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
     #Nsh = int(a/dx)
@@ -466,28 +466,33 @@ def main():
 
     V_1 = Pois(ne, ni, Vel, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx, dt)
-    ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
+    #ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
     ni_1 = continuity(ui_1, ni, Nel, Nx, dt)
     ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
-    q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
+    #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
+    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel-1]-V_1[0])/kTe)) * dt / C
 
     #print(e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 7):
-        #print(q)
+    for i in range(2, 20000):
+        print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
 
         V_2 = Pois(ne_1, ni_1, Vel2, dx, Nel, Nx)
         ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
-        ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
+        #ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
         ni_2 = continuity(ui_2, ni_1, Nel, Nx, dt)
         ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
-        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
+        #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
+        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
+            e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
+        #print((ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
+            # e * (V_2[Nel - 1] - V_2[0]) / kTe)))
 
 
 
@@ -496,7 +501,7 @@ def main():
 
         V_1 = Pois(ne_2, ni_2, Vel3, dx, Nel, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
-        ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
+        #ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
         ni_1 = continuity(ui_1, ni_2, Nel, Nx, dt)
         ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
         #ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
@@ -508,7 +513,9 @@ def main():
         ui_1 = momentum(V_2, ni_1, ui_2, kTi, kTe, n0, Nel, Nx, dt)
         V_1 = Pois(ne_1, ni_1, Vel3, dx, Nel, Nx)
         """
-        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
+        #q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
+            e * (V_1[Nel - 1] - V_1[0]) / kTe)) * dt / C
 
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
@@ -579,20 +586,22 @@ def main():
     plt.ylabel('u')
     plt.show()
 
+    """
     plt.plot(x, ue, 'r')
     plt.plot(x, ue_1, 'b')
     #plt.plot(x, ue_2, 'g')
     #plt.plot(x, ue_3, 'm')
     plt.ylabel('u')
     plt.show()
-
+    """
+    """
     cur = [0 for i in range(0, Nx)]
     for i in range(0, Nel):
         cur[i] = ni_1[i] * ui_1[i] - ne_1[i] * ue_1[i]
 
     plt.plot(x, cur, 'r')
     plt.show()
-
+    """
     return 0
 
 
