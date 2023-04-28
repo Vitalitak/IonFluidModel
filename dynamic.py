@@ -285,7 +285,7 @@ def continuity(u, nprev, Nel, Nx, dt):
     #dt = 1E-11  # s
     dx = 1E-7
     n = [0 for k in range(0, Nx)]
-
+    """
     # initialisation of sweeping coefficients
     a = [0 for k in range(0, Nel)]
     b = [0 for k in range(0, Nel)]
@@ -315,6 +315,16 @@ def continuity(u, nprev, Nel, Nx, dt):
     n[Nel - 1] = b[Nel - 1]
     for i in range(Nel - 1, 0, -1):
         n[i - 1] = a[i - 1] * n[i] + b[i - 1]
+    """
+
+    # Explicit conservative upwind scheme
+
+    n[0] = nprev[0]
+
+    for i in range(1, Nel):
+        n[i] = nprev[i] - dt * ((nprev[i]*u[i]-nprev[i-1]*u[i-1])/dx)
+        # print(- kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx)
+
 
     return n
 
@@ -477,7 +487,7 @@ def main():
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 20000):
+    for i in range(2, 30000):
         print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
