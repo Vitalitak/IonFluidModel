@@ -515,14 +515,14 @@ def main():
     ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
-    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel-1]-V_1[0])/kTe)) * dt / C
+    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel-1]-V_1[0])/kTe)) * dt / C
 
-    #print(e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C)
+    print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel-1]-V_1[0])/kTe)) * dt / C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 2):
-        print(i)
+    for i in range(2, 3):
+        #print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
 
@@ -533,10 +533,10 @@ def main():
         ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
-        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
+        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
-        #print((ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
-            # e * (V_2[Nel - 1] - V_2[0]) / kTe)))
+        print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
+            e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
 
 
@@ -558,7 +558,7 @@ def main():
         V_1 = Pois(ne_1, ni_1, Vel3, dx, Nel, Nx)
         """
         #q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
-        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1] - V_1[0]) / kTe)) * dt / C
 
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
@@ -611,20 +611,22 @@ def main():
     plt.ylabel('V')
     plt.show()
 
-    plt.plot(x, ni, 'r')
-    plt.plot(x, ni_1, 'b')
+    plt.plot(x, ni, 'r--')
+    plt.plot(x, ni_1, 'r-')
+    plt.plot(x, ne, 'b--')
+    plt.plot(x, ne_1, 'b-')
     #plt.plot(x, ni_2, 'g')
     #plt.plot(x, ni_3, 'm')
-    plt.ylabel('Ni')
+    plt.ylabel('N')
     plt.show()
-
+    """
     plt.plot(x, ne, 'r')
     plt.plot(x, ne_1, 'b')
     #plt.plot(x, ne_2, 'g')
     #plt.plot(x, ne_3, 'm')
     plt.ylabel('Ne')
     plt.show()
-
+    """
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
     #plt.plot(x, ui_2, 'g')
