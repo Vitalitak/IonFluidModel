@@ -525,6 +525,7 @@ def main():
         #print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
+        #Vel2 = V[Nel-1]
 
         V_2 = Pois(ne_1, ni_1, Vel2, n0, dx, Nel, Nx)
         ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
@@ -535,13 +536,14 @@ def main():
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
-        print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
-            e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
+        #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
+            #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
 
 
         #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
         Vel3 = V[Nel-1] + q
+        #Vel3 = V[Nel - 1]
 
         V_1 = Pois(ne_2, ni_2, Vel3, n0, dx, Nel, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
