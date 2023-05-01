@@ -52,7 +52,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
     # dx = x[Npl - 1]-x[Npl - 2]
     # Nx = len[Ksi]
 
-    Psi[Nsh+2] = -0.01*dx * dx * e * e * n0 / eps0 / kTe
+    Psi[Nsh+2] = -0.001*dx * dx * e * e * n0 / eps0 / kTe
     A = 2 * e * e * n0 / eps0 / kTe
     B = -2 * e * e * n0 / eps0 / kTe
     C = -2 * e * e * n0 / eps0 / kTe
