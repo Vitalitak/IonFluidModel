@@ -224,9 +224,10 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
     for i in range(3, Nel):
         u[i] = uprev[i] + dt * (-kTe / mi * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * m.pow(N[i], gamma - 2) * (
                     N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx)
-        #print(dt * (-kTe / mi * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * m.pow(N[i], gamma - 2) * (
-                    #N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx))
-
+        #print(dt * (-kTe / mi * (Psi[Nel-1] - Psi[Nel-2]) / dx - kTi / mi * m.pow(N[Nel-1], gamma - 2) * (
+                    #N[Nel-1] - N[Nel-2]) / dx - (uprev[Nel-1] * uprev[Nel-1] - uprev[Nel-2] * uprev[Nel-2]) / dx))
+    #print(dt * (-kTe / mi * (Psi[Nel - 1] - Psi[Nel - 2]) / dx - kTi / mi * m.pow(N[Nel - 1], gamma - 2) * (
+            #N[Nel - 1] - N[Nel - 2]) / dx - (uprev[Nel - 1] * uprev[Nel - 1] - uprev[Nel - 2] * uprev[Nel - 2]) / dx))
 
     return u
 
@@ -391,10 +392,10 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.3  # eV
+    Te = 2.80  # eV
     Ti = 0.06  # eV
-    n0 = 4E17  # m-3
-    Vdc = -12
+    n0 = 3E17  # m-3
+    Vdc = -17
     C = 1E-10
     #C /= 1.6E-19
     gamma = 5/3
@@ -456,11 +457,11 @@ def main():
         for line in f5.readlines():
             Nel = int(line)
     f5.close()
-
+    """
     # initial conditions for ue
     for i in range(0, Nx):
         ue[i] = m.sqrt(kTe / me) * m.sqrt(3+2*e*V[i]/kTe+2*(de+1)/de*(1-m.exp(de*e*V[i]/kTe)))
-
+    """
 
     """
     x = [k * dx for k in range(0, Nx)]
@@ -515,13 +516,15 @@ def main():
     ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
-    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel-1]-V_1[0])/kTe)) * dt / C
+    #V_1min = min(V_1)
+    #V_1max = max(V_1)
+    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
 
-    print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel-1]-V_1[0])/kTe)) * dt / C)
+    print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
 
-    for i in range(2, 3):
+    for i in range(2, 10):
         #print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         Vel2 = V[Nel-1] + q
@@ -534,10 +537,12 @@ def main():
         ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
+        #V_2min = min(V_2)
+        #V_2max = max(V_2)
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
-        #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
-            #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
+        print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
+            e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
 
 
@@ -560,8 +565,11 @@ def main():
         V_1 = Pois(ne_1, ni_1, Vel3, dx, Nel, Nx)
         """
         #q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
+
+        #V_1min = min(V_1)
+        #V_1max = max(V_1)
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
-            e * (V_1[Nel - 1] - V_1[0]) / kTe)) * dt / C
+            e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 

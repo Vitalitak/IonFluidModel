@@ -63,7 +63,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
     # print(D)
     i=2
     #for i in range(Nsh+2, Nx-1):
-    while (Psi[i] > Psil) and (i<Nx):
+    while (Psi[i] > Psil) and (i<Nx-1):
         print(i)
         f1 = -m.pow(-(A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]+C), 0.5)
         f2 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]+C), 0.5)
@@ -95,12 +95,12 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.3  # eV
+    Te = 2.80  # eV
     Ti = 0.06  # eV
-    n0 = 4E17  # m-3
-    Vdc = -12
-    C = 1.4E-16
-    C /= 1.6E-19
+    n0 = 3E17  # m-3
+    Vdc = -17
+    #C = 1.4E-16
+    #C /= 1.6E-19
     gamma = 5/3
 
 
