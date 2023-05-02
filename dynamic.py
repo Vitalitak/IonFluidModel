@@ -505,6 +505,7 @@ def main():
     ni_1 = [0 for k in range(0, Nx)]
     ne_1 = [0 for k in range(0, Nx)]
     ue_1 = [0 for k in range(0, Nx)]
+    VdcRF = [0 for k in range(0, 50000)]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
     Vel = V[Nel-1]+q
@@ -519,13 +520,13 @@ def main():
     #V_1min = min(V_1)
     #V_1max = max(V_1)
     q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
-
+    VdcRF[0] = q
     print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
     t = 0
 
-    for i in range(2, 10000):
+    for i in range(2, 30000):
         #print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         #t += dt
@@ -544,6 +545,7 @@ def main():
         #V_2max = max(V_2)
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
+        VdcRF[int(i / 2)] = q
         print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
@@ -574,6 +576,7 @@ def main():
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
+        VdcRF[int(i+1 / 2)] = q
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
 
@@ -622,6 +625,9 @@ def main():
     #plt.plot(x, V_2, 'g')
     #plt.plot(x, V_3, 'm')
     plt.ylabel('V')
+    plt.show()
+
+    plt.plot(VdcRF, 'r')
     plt.show()
 
     plt.plot(x, ni, 'r--')
