@@ -523,11 +523,14 @@ def main():
     print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
+    t = 0
 
-    for i in range(2, 10):
+    for i in range(2, 10000):
         #print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
-        Vel2 = V[Nel-1] + q
+        #t += dt
+
+        Vel2 = V[Nel-1] + q - 5* m.sin(1e-3 * m.pi * i / 2)
         #Vel2 = V[Nel-1]
 
         V_2 = Pois(ne_1, ni_1, Vel2, n0, dx, Nel, Nx)
@@ -547,7 +550,7 @@ def main():
 
 
         #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
-        Vel3 = V[Nel-1] + q
+        Vel3 = V[Nel-1] + q - 5* m.sin(1e-3 * (i + 1) / 2)
         #Vel3 = V[Nel - 1]
 
         V_1 = Pois(ne_2, ni_2, Vel3, n0, dx, Nel, Nx)
