@@ -533,7 +533,7 @@ def main():
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         #t += dt
 
-        Vel2 = V[Nel-1] + q - 0 * m.sin(1e-3 * 2 * m.pi * i / 2)
+        Vel2 = V[Nel-1] + q - 20 * m.sin(1e-3 * 2 * m.pi * i / 2)
         #Vel2 = V[Nel-1] + q
 
         V_2 = Pois(ne_1, ni_1, Vel2, n0, dx, Nel, Nx)
@@ -548,14 +548,14 @@ def main():
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
         VdcRF[int(i / 2)] = q
-        VRF[int(i / 2)] = - 0 * m.sin(1e-3 * 2 * m.pi * i / 2)
+        VRF[int(i / 2)] = - 20 * m.sin(1e-3 * 2 * m.pi * i / 2)
         #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
 
 
         #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
-        Vel3 = V[Nel-1] + q - 0 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
+        Vel3 = V[Nel-1] + q - 20 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
         #Vel3 = V[Nel - 1] + q
 
         V_1 = Pois(ne_2, ni_2, Vel3, n0, dx, Nel, Nx)
@@ -580,7 +580,7 @@ def main():
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
         VdcRF[int((i+1)/ 2)] = q
-        VRF[int((i+1)/ 2)] = - 0 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
+        VRF[int((i+1)/ 2)] = - 20 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
 
