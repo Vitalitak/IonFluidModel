@@ -505,7 +505,8 @@ def main():
     ni_1 = [0 for k in range(0, Nx)]
     ne_1 = [0 for k in range(0, Nx)]
     ue_1 = [0 for k in range(0, Nx)]
-    VdcRF = [0 for k in range(0, 50000)]
+    VdcRF = [0 for k in range(0, 30000)]
+    VRF = [0 for k in range(0, 30000)]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
     Vel = V[Nel-1]+q
@@ -521,18 +522,19 @@ def main():
     #V_1max = max(V_1)
     q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
     VdcRF[0] = q
+    VRF[0] = 0
     print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
     #for i in range(0, Nel):
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
     t = 0
 
-    for i in range(2, 30000):
-        #print(i)
+    for i in range(2, 50000):
+        print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         #t += dt
 
-        Vel2 = V[Nel-1] + q - 5* m.sin(1e-3 * m.pi * i / 2)
-        #Vel2 = V[Nel-1]
+        Vel2 = V[Nel-1] + q - 0 * m.sin(1e-3 * 2 * m.pi * i / 2)
+        #Vel2 = V[Nel-1] + q
 
         V_2 = Pois(ne_1, ni_1, Vel2, n0, dx, Nel, Nx)
         ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
@@ -546,14 +548,15 @@ def main():
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
         VdcRF[int(i / 2)] = q
-        print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
-            e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
+        VRF[int(i / 2)] = - 0 * m.sin(1e-3 * 2 * m.pi * i / 2)
+        #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
+            #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
 
 
         #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
-        Vel3 = V[Nel-1] + q - 5* m.sin(1e-3 * (i + 1) / 2)
-        #Vel3 = V[Nel - 1]
+        Vel3 = V[Nel-1] + q - 0 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
+        #Vel3 = V[Nel - 1] + q
 
         V_1 = Pois(ne_2, ni_2, Vel3, n0, dx, Nel, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
@@ -576,7 +579,8 @@ def main():
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
-        VdcRF[int(i+1 / 2)] = q
+        VdcRF[int((i+1)/ 2)] = q
+        VRF[int((i+1)/ 2)] = - 0 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
 
@@ -628,6 +632,9 @@ def main():
     plt.show()
 
     plt.plot(VdcRF, 'r')
+    plt.plot(VRF, 'b')
+    plt.axis([-500, 26000, -22, 21])
+    plt.grid(visible='True', which='both', axis='y')
     plt.show()
 
     plt.plot(x, ni, 'r--')
