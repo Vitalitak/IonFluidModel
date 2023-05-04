@@ -400,6 +400,7 @@ def main():
     #C /= 1.6E-19
     gamma = 5/3
     de = 0.2327775
+    Arf = 10
 
 
     kTi = Ti * 1.6E-19  # J
@@ -505,8 +506,8 @@ def main():
     ni_1 = [0 for k in range(0, Nx)]
     ne_1 = [0 for k in range(0, Nx)]
     ue_1 = [0 for k in range(0, Nx)]
-    VdcRF = [0 for k in range(0, 30000)]
-    VRF = [0 for k in range(0, 30000)]
+    VdcRF = [0 for k in range(0, 110000)]
+    VRF = [0 for k in range(0, 110000)]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
     Vel = V[Nel-1]+q
@@ -528,12 +529,12 @@ def main():
         #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
     t = 0
 
-    for i in range(2, 50000):
+    for i in range(1, 50000):
         print(i)
         #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         #t += dt
 
-        Vel2 = V[Nel-1] + q - 20 * m.sin(1e-3 * 2 * m.pi * i / 2)
+        Vel2 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
         #Vel2 = V[Nel-1] + q
 
         V_2 = Pois(ne_1, ni_1, Vel2, n0, dx, Nel, Nx)
@@ -547,15 +548,15 @@ def main():
         #V_2max = max(V_2)
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
-        VdcRF[int(i / 2)] = q
-        VRF[int(i / 2)] = - 20 * m.sin(1e-3 * 2 * m.pi * i / 2)
+        VdcRF[int(2 * i - 1)] = q
+        VRF[int(2 * i - 1)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
         #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
 
 
         #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
-        Vel3 = V[Nel-1] + q - 20 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
+        Vel3 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
         #Vel3 = V[Nel - 1] + q
 
         V_1 = Pois(ne_2, ni_2, Vel3, n0, dx, Nel, Nx)
@@ -579,8 +580,8 @@ def main():
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
-        VdcRF[int((i+1)/ 2)] = q
-        VRF[int((i+1)/ 2)] = - 20 * m.sin(1e-3 * 2 * m.pi * (i + 1) / 2)
+        VdcRF[int(2 * i)] = q
+        VRF[int(2 * i)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
 
@@ -633,7 +634,7 @@ def main():
 
     plt.plot(VdcRF, 'r')
     plt.plot(VRF, 'b')
-    plt.axis([-500, 26000, -22, 21])
+    plt.axis([-500, 110000, -23, 21])
     plt.grid(visible='True', which='both', axis='y')
     plt.show()
 
