@@ -82,7 +82,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
 
     return Psi, Nel
 
-def Pois(ne, ni, Ve, n0, dx, Nel, Nx):
+def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nx):
 
     """
     sweep method solution of Poisson equation
@@ -106,7 +106,7 @@ def Pois(ne, ni, Ve, n0, dx, Nel, Nx):
     # boundary conditions on plasma surface: (dV/dx)pl = 0 or (V)pl = 0
     #a[0] = 0.5
     #b[0] = 0.5 * (ne[0] - ni[0]) * dx * dx
-
+    """
     V[0] = 0
     V[1] = 0
 
@@ -121,6 +121,18 @@ def Pois(ne, ni, Ve, n0, dx, Nel, Nx):
     for i in range(3, Nel-1):
         a[i] = -1 / (-2+a[i-1])
         b[i] = (-b[i-1] - e / eps0 * (ni[i] - ne[i]) * dx * dx)/(-2+a[i-1])
+    """
+
+    for i in range(0, 1000):
+        V[i] = Vprev[i]
+        a[i] = 0
+        b[i] = 0
+    a[1000] = 0
+    b[1000] = Vprev[1000]
+
+    for i in range(1001, Nel - 1):
+        a[i] = -1 / (-2 + a[i - 1])
+        b[i] = (-b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (-2 + a[i - 1])
 
     # boundary condition on electrode surface: (V)el = Ve
     a[Nel-1] = 0
@@ -131,8 +143,8 @@ def Pois(ne, ni, Ve, n0, dx, Nel, Nx):
 
     # backward
     V[Nel-1] = b[Nel-1]
-    for i in range(Nel-1, 2, -1):
-        V[i-1] = a[i-1]*V[i]-b[i-1]
+    for i in range(Nel-1, 1000, -1):
+        V[i-1] = a[i-1]*V[i]+b[i-1]
 
 
     """
@@ -216,12 +228,16 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
 
 
     # Explicit conservative upwind scheme
-    
+    """
     u[0] = uprev[0]
     u[1] = uprev[1]
     u[2] = uprev[2]
+    """
 
-    for i in range(3, Nel):
+    for i in range(0, 1000):
+        u[i] = uprev[i]
+
+    for i in range(1000, Nel):
         u[i] = uprev[i] + dt * (-kTe / mi * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * m.pow(N[i], gamma - 2) * (
                     N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx)
         #print(dt * (-kTe / mi * (Psi[Nel-1] - Psi[Nel-2]) / dx - kTi / mi * m.pow(N[Nel-1], gamma - 2) * (
@@ -344,16 +360,20 @@ def continuity(u, nprev, Nel, Nx, dt):
     """
 
     # Explicit conservative upwind scheme
-
+    """
     n[0] = nprev[0]
     n[1] = nprev[1]
     n[2] = nprev[2]
+    """
+    for i in range(0, 1000):
+        n[i] = nprev[i]
+
     """
     N[0] = Nprev[0]
     N[1] = Nprev[1]
     N[2] = Nprev[2]
     """
-    for i in range(3, Nel):
+    for i in range(1000, Nel):
         n[i] = nprev[i] - dt * ((nprev[i]*u[i]-nprev[i-1]*u[i-1])/dx)
         #print(((nprev[i]-nprev[i-1])*u[i]+(u[i]-u[i-1])*nprev[i]))
     """
@@ -512,7 +532,7 @@ def main():
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
     Vel = V[Nel-1]+q
 
-    V_1 = Pois(ne, ni, Vel, n0, dx, Nel, Nx)
+    V_1 = Pois(ne, ni, V, Vel, n0, dx, Nel, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx, dt)
     #ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
     ni_1 = continuity(ui_1, ni, Nel, Nx, dt)
@@ -537,7 +557,7 @@ def main():
         Vel2 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
         #Vel2 = V[Nel-1] + q
 
-        V_2 = Pois(ne_1, ni_1, Vel2, n0, dx, Nel, Nx)
+        V_2 = Pois(ne_1, ni_1, V_1, Vel2, n0, dx, Nel, Nx)
         ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
         #ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
         ni_2 = continuity(ui_2, ni_1, Nel, Nx, dt)
@@ -559,7 +579,7 @@ def main():
         Vel3 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
         #Vel3 = V[Nel - 1] + q
 
-        V_1 = Pois(ne_2, ni_2, Vel3, n0, dx, Nel, Nx)
+        V_1 = Pois(ne_2, ni_2, V_2, Vel3, n0, dx, Nel, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
         #ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
         ni_1 = continuity(ui_1, ni_2, Nel, Nx, dt)
