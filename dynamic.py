@@ -13,76 +13,15 @@ Electrode potential in equivalent circuit model
 """
 
 """
-four order Runge-Kutta method for solution equation
-dy/dx=f(x, y)
-
-Poisson equation with Maxwell-Boltzmann electrons and ion concentration from fluid model
-for dn/dt = 0 and du/dt = 0
-
-dPsi/dx=F(x, Psi)
+Initial conditions are given by stationary.py 
+Dynamic calculation cyclic substitution of functions values into the system
+Electrons have Boltzmann distribution
+Electron current is calculated as diode current
 
 """
 
 
-def RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN):
-    e = 1.6E-19
-    eps0 = 8.85E-12
-    kTe = Te * 1.6E-19  # J
-
-    """
-    Psi(0)=0
-    dPsi/dx(0) = 0
-    dPsi/dx<0
-
-
-
-    dPsi/dx=F(x, Psi)
-    F = -(A*exp(Psi)+B*int(N(dzetta), dzetta=[0, Psi(x)])+C)^1/2
-
-    A=2*e*e*n0/eps0/kTe*m.exp(e*V0/kTe)
-    B=-2*e*e*n0/eps0/kTe
-    C=-2*e*e*n0/eps0/kTe*m.exp(e*V0/kTe)
-
-    Psi(0)=0
-
-    Four order Runge-Kutta method
-    f1=F(x[n], Psi[n])
-    f2=F(x[n]+dx/2, Psi[n]+dx/2*f1)
-    f3=F(x[n]+dx/2, Psi[n]+dx/2*f2)
-    f4=F(x[n]+dx, Psi[n]+dx*f3)
-
-    Psi[n+1]=Psi[n]+dx/6*(f1+2*f2+2*f3+f4)
-
-    """
-
-    # dx = x[Npl - 1]-x[Npl - 2]
-    # Nx = len[Ksi]
-
-    Psi[Nsh + 2] = -0.001 * dx * dx * e * e * n0 / eps0 / kTe
-    A = 2 * e * e * n0 / eps0 / kTe
-    B = -2 * e * e * n0 / eps0 / kTe
-    C = -2 * e * e * n0 / eps0 / kTe
-
-    # print(A)
-    # print(B)
-    # print(C)
-    # print(D)
-    i = 2
-    # for i in range(Nsh+2, Nx-1):
-    while (Psi[i] > Psil) and (i < Nx):
-        print(i)
-        f1 = -m.pow(-(A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0] + C), 0.5)
-        f2 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i] + dx / 2 * f1)[0] + C), 0.5)
-        f3 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, 0, Psi[i] + dx / 2 * f2)[0] + C), 0.5)
-        f4 = -m.pow(-(A * m.exp(Psi[i] + dx * f3) + B * quad(FN, 0, Psi[i] + dx * f3)[0] + C), 0.5)
-        Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
-        i = i + 1
-
-    Nel = i+1
-
-    return Psi, Nel
-
-def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nx):
+def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
 
     """
     sweep method solution of Poisson equation
@@ -93,8 +32,6 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nx):
     e = 1.6E-19
     eps0 = 8.85E-12
 
-    #Nx = len(ne)
-    #dx = boxsize / Nx
     V = [0 for k in range(0, Nx)]
 
 
@@ -104,8 +41,7 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nx):
 
     # forward
     # boundary conditions on plasma surface: (dV/dx)pl = 0 or (V)pl = 0
-    #a[0] = 0.5
-    #b[0] = 0.5 * (ne[0] - ni[0]) * dx * dx
+
     """
     V[0] = 0
     V[1] = 0
@@ -123,14 +59,14 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nx):
         b[i] = (-b[i-1] - e / eps0 * (ni[i] - ne[i]) * dx * dx)/(-2+a[i-1])
     """
 
-    for i in range(0, 1000):
+    for i in range(0, Nsh):
         V[i] = Vprev[i]
         a[i] = 0
         b[i] = 0
-    a[1000] = 0
-    b[1000] = Vprev[1000]
+    a[Nsh] = 0
+    b[Nsh] = Vprev[Nsh]
 
-    for i in range(1001, Nel - 1):
+    for i in range(Nsh+1, Nel - 1):
         a[i] = -1 / (-2 + a[i - 1])
         b[i] = (-b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (-2 + a[i - 1])
 
@@ -143,7 +79,7 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nx):
 
     # backward
     V[Nel-1] = b[Nel-1]
-    for i in range(Nel-1, 1000, -1):
+    for i in range(Nel-1, Nsh, -1):
         V[i-1] = a[i-1]*V[i]+b[i-1]
 
 
@@ -180,7 +116,7 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nx):
 
     return V
 
-def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
+def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
 
     """
     sweep method solution of momentum balance equation
@@ -234,10 +170,10 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nx, dt):
     u[2] = uprev[2]
     """
 
-    for i in range(0, 1000):
+    for i in range(0, Nsh):
         u[i] = uprev[i]
 
-    for i in range(1000, Nel):
+    for i in range(Nsh, Nel):
         u[i] = uprev[i] + dt * (-kTe / mi * (Psi[i] - Psi[i - 1]) / dx - kTi / mi * m.pow(N[i], gamma - 2) * (
                     N[i] - N[i - 1]) / dx - (uprev[i] * uprev[i] - uprev[i - 1] * uprev[i - 1]) / dx)
         #print(dt * (-kTe / mi * (Psi[Nel-1] - Psi[Nel-2]) / dx - kTi / mi * m.pow(N[Nel-1], gamma - 2) * (
@@ -309,7 +245,7 @@ def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
 
     return u
 
-def continuity(u, nprev, Nel, Nx, dt):
+def continuity(u, nprev, Nel, Nsh, Nx, dt):
 
     """
     sweep method solution of continuity equation
@@ -365,21 +301,13 @@ def continuity(u, nprev, Nel, Nx, dt):
     n[1] = nprev[1]
     n[2] = nprev[2]
     """
-    for i in range(0, 1000):
+    for i in range(0, Nsh):
         n[i] = nprev[i]
 
-    """
-    N[0] = Nprev[0]
-    N[1] = Nprev[1]
-    N[2] = Nprev[2]
-    """
-    for i in range(1000, Nel):
+    for i in range(Nsh, Nel):
         n[i] = nprev[i] - dt * ((nprev[i]*u[i]-nprev[i-1]*u[i-1])/dx)
         #print(((nprev[i]-nprev[i-1])*u[i]+(u[i]-u[i-1])*nprev[i]))
-    """
-    for i in range(0, Nel):
-        n[i] = N[i]*nprev[0]
-    """
+
     #print(((nprev[3] - nprev[2]) * u[3] + (u[3] - u[2]) * nprev[3]))
     return n
 
@@ -401,9 +329,7 @@ def main():
     dt = 1E-13 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
-    #Nsh = int(a/dx)
-    Nsh = 0
-    #Nx = 500000
+    Nsh = 1000
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -425,8 +351,7 @@ def main():
 
     kTi = Ti * 1.6E-19  # J
     kTe = Te * 1.6E-19  # J
-    #V0 = 0
-    # V0 = kTe / e * (1 - P) / (m.cosh(m.sqrt(e * e * n0 / 2 / eps0 / kTi) * a) - 1)
+
 
     Nt = int(tEnd / dt)
 
@@ -478,46 +403,13 @@ def main():
         for line in f5.readlines():
             Nel = int(line)
     f5.close()
+
     """
     # initial conditions for ue
     for i in range(0, Nx):
         ue[i] = m.sqrt(kTe / me) * m.sqrt(3+2*e*V[i]/kTe+2*(de+1)/de*(1-m.exp(de*e*V[i]/kTe)))
     """
 
-    """
-    x = [k * dx for k in range(0, Nx)]
-    V = [0 for k in range(0, Nx)]
-    ni = [0 for k in range(0, Nx)]
-    ne = [0 for k in range(0, Nx)]
-    ui = [0 for k in range(0, Nx)]
-    ue = [0 for k in range(0, Nx)]
-
-    Psi = [0 for k in range(0, Nx)]
-    Ni = [0 for k in range(0, Nx)]
-    dPsidx = [0 for k in range(0, Nx)]
-    Vrf = 0
-
-    Psil = e*Vdc/kTe
-
-    FPsi = lambda x: (5*gamma-3)*Ti/Te/2/(gamma-1)*(1-3*(gamma-1)/(5*gamma-3)*m.pow(x, -2)-2*gamma/(5*gamma-3)*m.pow(x, gamma-1))
-
-    FN = inversefunc(FPsi, domain=[0.001, 1])
-
-    Psi, Nel = RKPoisN(dx, Psi, Nsh, Nx, n0, Ti, Te, Psil, FN)
-
-    for i in range(Nsh, Nx):
-        Ni[i] = FN(Psi[i])
-
-    for i in range(Nsh, Nx-1):
-        dPsidx[i] = (Psi[i+1]-Psi[i])/dx
-
-    for i in range(0, Nx):
-        V[i] = Psi[i]*kTe/e
-        ni[i] = Ni[i]*n0
-        ne[i] = n0*m.exp(e*V[i]/kTe)
-        ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
-        ue[i] = n0 * m.sqrt(kTe / me) / ne[i]
-    """
 
     # dynamic calculations
 
@@ -532,40 +424,34 @@ def main():
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
     Vel = V[Nel-1]+q
 
-    V_1 = Pois(ne, ni, V, Vel, n0, dx, Nel, Nx)
-    ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nx, dt)
+    V_1 = Pois(ne, ni, V, Vel, n0, dx, Nel, Nsh, Nx)
+    ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nsh, Nx, dt)
     #ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
-    ni_1 = continuity(ui_1, ni, Nel, Nx, dt)
+    ni_1 = continuity(ui_1, ni, Nel, Nsh, Nx, dt)
     ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
-    #V_1min = min(V_1)
-    #V_1max = max(V_1)
     q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
     VdcRF[0] = q
     VRF[0] = 0
     print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
-    #for i in range(0, Nel):
-        #ne_1[i] = n0*m.exp(e*V_1[i]/kTe)
+
     t = 0
 
     for i in range(1, 50000):
         print(i)
-        #Vel2 = V[Nel-1] - 10 * m.sin(13560000 * 2 * m.pi * i / 2 * dt)+q
         #t += dt
 
         Vel2 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
         #Vel2 = V[Nel-1] + q
 
-        V_2 = Pois(ne_1, ni_1, V_1, Vel2, n0, dx, Nel, Nx)
-        ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nx, dt)
+        V_2 = Pois(ne_1, ni_1, V_1, Vel2, n0, dx, Nel, Nsh, Nx)
+        ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nsh, Nx, dt)
         #ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
-        ni_2 = continuity(ui_2, ni_1, Nel, Nx, dt)
+        ni_2 = continuity(ui_2, ni_1, Nel, Nsh, Nx, dt)
         ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
-        #V_2min = min(V_2)
-        #V_2max = max(V_2)
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
         VdcRF[int(2 * i - 1)] = q
@@ -575,14 +461,13 @@ def main():
 
 
 
-        #Vel3 = V[Nel - 1] - 10 * m.sin(13560000 * 2 * m.pi * (i + 1) / 2 * dt)+q
         Vel3 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
         #Vel3 = V[Nel - 1] + q
 
-        V_1 = Pois(ne_2, ni_2, V_2, Vel3, n0, dx, Nel, Nx)
-        ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nx, dt)
+        V_1 = Pois(ne_2, ni_2, V_2, Vel3, n0, dx, Nel, Nsh, Nx)
+        ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nsh, Nx, dt)
         #ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
-        ni_1 = continuity(ui_1, ni_2, Nel, Nx, dt)
+        ni_1 = continuity(ui_1, ni_2, Nel, Nsh, Nx, dt)
         ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
         #ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
 
@@ -595,8 +480,6 @@ def main():
         """
         #q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
 
-        #V_1min = min(V_1)
-        #V_1max = max(V_1)
         q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
@@ -604,31 +487,8 @@ def main():
         VRF[int(2 * i)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
+    # graph plot
 
-    """
-    #Psi_1 = RKPoisN(dx, Psi_1, Nsh, Nx, n0, Ti, Te, Psil_1, FN)
-    #for i in range(Nsh, Nx):
-        #Ni_1[i] = FN(Psi_1[i])
-    
-    
-    for i in range(0, Nx):
-        V_1[i] = Psi_1[i]*kTe/e
-        ni_1[i] = Ni_1[i]*n0
-        ui_1[i] = n0 * m.sqrt(kTi / mi) / ni_1[i]
-    """
-    """
-    plt.plot(x, Psi)
-    plt.ylabel('Psi')
-    plt.show()
-
-    plt.plot(x, Ni)
-    plt.ylabel('Ni')
-    plt.show()
-
-    plt.plot(x, dPsidx)
-    plt.ylabel('dPsi/dx')
-    plt.show()
-    """
     Ii = [0 for k in range(0, Nx)]
     Ii_1 = [0 for k in range(0, Nx)]
     Ie = [0 for k in range(0, Nx)]
@@ -666,14 +526,7 @@ def main():
     #plt.plot(x, ni_3, 'm')
     plt.ylabel('N')
     plt.show()
-    """
-    plt.plot(x, ne, 'r')
-    plt.plot(x, ne_1, 'b')
-    #plt.plot(x, ne_2, 'g')
-    #plt.plot(x, ne_3, 'm')
-    plt.ylabel('Ne')
-    plt.show()
-    """
+
     plt.plot(x, ui, 'r')
     plt.plot(x, ui_1, 'b')
     #plt.plot(x, ui_2, 'g')
@@ -681,14 +534,7 @@ def main():
     plt.ylabel('u')
     plt.show()
 
-    """
-    plt.plot(x, ue, 'r')
-    plt.plot(x, ue_1, 'b')
-    #plt.plot(x, ue_2, 'g')
-    #plt.plot(x, ue_3, 'm')
-    plt.ylabel('u')
-    plt.show()
-    """
+
     """
     cur = [0 for i in range(0, Nx)]
     for i in range(0, Nel):
