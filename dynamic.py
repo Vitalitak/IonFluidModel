@@ -330,6 +330,7 @@ def main():
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 1000
+    Nt = 50000
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -347,13 +348,14 @@ def main():
     gamma = 5/3
     de = 0.2327775
     Arf = 10
+    w = 135600000 # Hz
 
 
     kTi = Ti * 1.6E-19  # J
     kTe = Te * 1.6E-19  # J
 
 
-    Nt = int(tEnd / dt)
+    #Nt = int(tEnd / dt)
 
     # stationary system for initial conditions
 
@@ -413,13 +415,14 @@ def main():
 
     # dynamic calculations
 
-    ui_1 = [0 for k in range(0, Nx)]
-    V_1 = [0 for k in range(0, Nx)]
-    ni_1 = [0 for k in range(0, Nx)]
-    ne_1 = [0 for k in range(0, Nx)]
-    ue_1 = [0 for k in range(0, Nx)]
-    VdcRF = [0 for k in range(0, 110000)]
-    VRF = [0 for k in range(0, 110000)]
+    ui_p = [0 for k in range(0, Nx)]
+    V_p = [0 for k in range(0, Nx)]
+    ni_p = [0 for k in range(0, Nx)]
+    ne_p = [0 for k in range(0, Nx)]
+    #ue_1 = [0 for k in range(0, Nx)]
+    VdcRF = [0 for k in range(0, int(2*Nt+1))]
+    VRF = [0 for k in range(0, int(2*Nt+1))]
+    time = [dt * k for k in range(0, int(2*Nt+1))]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
     Vel = V[Nel-1]+q
@@ -438,11 +441,12 @@ def main():
 
     t = 0
 
-    for i in range(1, 50000):
+    for i in range(1, Nt):
         print(i)
-        #t += dt
+        t += dt
 
-        Vel2 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
+        Vel2 = V[Nel - 1] + q - Arf * m.sin(w * 2 * m.pi * t)
+        #Vel2 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
         #Vel2 = V[Nel-1] + q
 
         V_2 = Pois(ne_1, ni_1, V_1, Vel2, n0, dx, Nel, Nsh, Nx)
@@ -455,13 +459,15 @@ def main():
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
         VdcRF[int(2 * i - 1)] = q
-        VRF[int(2 * i - 1)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
+        #VRF[int(2 * i - 1)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
+        VRF[int(2 * i - 1)] = - Arf * m.sin(w * 2 * m.pi * t)
         #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
 
 
-
-        Vel3 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
+        t += dt
+        Vel3 = V[Nel - 1] + q - Arf * m.sin(w * 2 * m.pi * t)
+        #Vel3 = V[Nel-1] + q - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
         #Vel3 = V[Nel - 1] + q
 
         V_1 = Pois(ne_2, ni_2, V_2, Vel3, n0, dx, Nel, Nsh, Nx)
@@ -484,7 +490,8 @@ def main():
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
         VdcRF[int(2 * i)] = q
-        VRF[int(2 * i)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
+        VRF[int(2 * i)] = - Arf * m.sin(w * 2 * m.pi * t)
+        #VRF[int(2 * i)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
     # graph plot
@@ -512,9 +519,9 @@ def main():
     plt.ylabel('V')
     plt.show()
 
-    plt.plot(VdcRF, 'r')
-    plt.plot(VRF, 'b')
-    plt.axis([-500, 110000, -23, 21])
+    plt.plot(time, VdcRF, 'r')
+    plt.plot(time, VRF, 'b')
+    plt.axis([-1e-9, 1e-7, -23, 21])
     plt.grid(visible='True', which='both', axis='y')
     plt.show()
 
