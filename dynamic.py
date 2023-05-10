@@ -330,7 +330,7 @@ def main():
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 1000
-    Nt = 50000
+    Nt = 500000
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -348,7 +348,7 @@ def main():
     gamma = 5/3
     de = 0.2327775
     Arf = 10
-    w = 135600000 # Hz
+    w = 13560000 # Hz
 
 
     kTi = Ti * 1.6E-19  # J
@@ -442,7 +442,7 @@ def main():
     t = 0
 
     for i in range(1, Nt):
-        print(i)
+        #print(i)
         t += dt
 
         Vel2 = V[Nel - 1] + q - Arf * m.sin(w * 2 * m.pi * t)
