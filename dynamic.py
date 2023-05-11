@@ -329,7 +329,7 @@ def main():
     dt = 1E-12 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
-    Nsh = 1500
+    Nsh = 1000
     Nt = 100000
     tEnd = 50  # ns
 
@@ -348,7 +348,7 @@ def main():
     gamma = 5/3
     de = 0.2327775
     Arf = 10
-    w = 13560000000 # Hz
+    w = 1356000000 # Hz
 
 
     kTi = Ti * 1.6E-19  # J
