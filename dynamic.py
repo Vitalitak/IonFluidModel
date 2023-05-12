@@ -330,7 +330,7 @@ def main():
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 1000
-    Nt = 50000
+    Nt = 100000
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -340,7 +340,7 @@ def main():
 
     # plasma parameters
     Te = 2.70  # eV
-    Ti = 0.06  # eV
+    Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
     C = 1E-10
