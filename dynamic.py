@@ -330,7 +330,7 @@ def main():
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 1000
-    Nt = 100000
+    Nt = 50000
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -339,7 +339,7 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.78  # eV
+    Te = 2.70  # eV
     Ti = 0.06  # eV
     n0 = 3E17  # m-3
     Vdc = -17
@@ -347,7 +347,7 @@ def main():
     #C /= 1.6E-19
     gamma = 5/3
     de = 0.2327775
-    Arf = 10
+    Arf = 20
     w = 1356000000 # Hz
 
 
@@ -434,10 +434,10 @@ def main():
     ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
-    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
+    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
     VdcRF[0] = q
     VRF[0] = 0
-    print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
+    print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
 
     t = 0
 
@@ -456,7 +456,7 @@ def main():
         ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
-        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
+        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
         VdcRF[int(2 * i - 1)] = q
         #VRF[int(2 * i - 1)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
@@ -486,7 +486,7 @@ def main():
         """
         #q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
 
-        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
 
         VdcRF[int(2 * i)] = q

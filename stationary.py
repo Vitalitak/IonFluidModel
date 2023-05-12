@@ -95,7 +95,7 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.78  # eV
+    Te = 2.70  # eV
     Ti = 0.06  # eV
     n0 = 3E17  # m-3
     Vdc = -17
@@ -152,7 +152,7 @@ def main():
         V[i] = Psi[i]*kTe/e
         ni[i] = Ni[i]*n0
         ne[i] = n0*m.exp(e*V[i]/kTe)
-        ui[i] = n0 * m.sqrt(3*kTi / mi) / ni[i]
+        ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
 
 
     plt.plot(x, Psi)
