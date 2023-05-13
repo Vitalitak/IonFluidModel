@@ -330,7 +330,7 @@ def main():
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 1000
-    Nt = 100000
+    Nt = 200000
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -343,12 +343,12 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C = 1E-10
+    C = 1E-7
     #C /= 1.6E-19
     gamma = 5/3
     de = 0.2327775
-    Arf = 20
-    w = 1356000000 # Hz
+    Arf = 15
+    w = 13560000 # Hz
 
 
     kTi = Ti * 1.6E-19  # J
@@ -521,7 +521,7 @@ def main():
 
     plt.plot(time, VdcRF, 'r')
     plt.plot(time, VRF, 'b')
-    plt.axis([-1e-9, 1e-7, -23, 21])
+    plt.axis([-1e-9, 1e-6, -23, 21])
     plt.grid(visible='True', which='both', axis='y')
     plt.show()
 
