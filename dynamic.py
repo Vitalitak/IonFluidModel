@@ -521,7 +521,7 @@ def main():
 
     plt.plot(time, VdcRF, 'r')
     plt.plot(time, VRF, 'b')
-    plt.axis([-1e-9, 1e-6, -23, 21])
+    plt.axis([-1e-9, 5e-7, -23, 21])
     plt.grid(visible='True', which='both', axis='y')
     plt.show()
 
