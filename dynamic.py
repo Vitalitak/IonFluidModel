@@ -329,6 +329,7 @@ def main():
     ne_p = [0 for k in range(0, Nx)]
     #ue_1 = [0 for k in range(0, Nx)]
     VdcRF = [0 for k in range(0, int(2*Nt+1))]
+    Iel = [0 for k in range(0, int(2*Nt+1))]
     VRF = [0 for k in range(0, int(2*Nt+1))]
     time = [dt * k for k in range(0, int(2*Nt+1))]
     q = 0
@@ -347,6 +348,7 @@ def main():
 
     q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
     VdcRF[0] = q
+    Iel[0] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe))
     VRF[0] = 0
     print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
 
@@ -370,7 +372,8 @@ def main():
         q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
         VdcRF[int(2 * i - 1)] = q
-        #VRF[int(2 * i - 1)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i - 1))
+        Iel[int(2 * i - 1)] = e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
+            e * (V_2[Nel - 1] - V_2[0]) / kTe))
         VRF[int(2 * i - 1)] = - Arf * m.sin(w * 2 * m.pi * t)
         #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
@@ -402,7 +405,8 @@ def main():
 
         VdcRF[int(2 * i)] = q
         VRF[int(2 * i)] = - Arf * m.sin(w * 2 * m.pi * t)
-        #VRF[int(2 * i)] = - Arf * m.sin(1e-3 * 2 * m.pi * (2 * i))
+        Iel[int(2 * i)] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
+            e * (V_1[Nel - 1]-V_1[0]) / kTe))
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
     # graph plot
@@ -418,9 +422,9 @@ def main():
 
     #print(Ii[Nel-1]-Ie[Nel-1])
 
-    plt.plot(x, Ii, 'r')
-    plt.plot(x, Ii_1, 'b')
-    plt.ylabel('Ii')
+    #plt.plot(x, Ii, 'r')
+    plt.plot(time, Iel, 'b')
+    plt.ylabel('I')
     plt.show()
 
     plt.plot(x, V, 'r')
@@ -432,6 +436,7 @@ def main():
 
     plt.plot(time, VdcRF, 'r')
     plt.plot(time, VRF, 'b')
+    plt.ylabel('V')
     plt.axis([-1e-9, 5e-7, -23, 21])
     plt.grid(visible='True', which='both', axis='y')
     plt.show()
