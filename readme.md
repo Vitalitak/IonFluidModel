@@ -5,7 +5,9 @@ Electrons have Maxwell-Boltzmann distribution. Ions are calculated in self-consi
 Three main blocks:
 1. Stationary self-consistent distribution of potential, ion concentration and ion velocity from plasma to the electrode
 \
-With Maxwell-Boltzmann distribution of electron concentration and electron velocity that satisfies the momentum change equation with self-consistent potential and Boltzmann concentration. Criteria for electron velocity are plasma velocity at plasma surface and equality of electron and ion fluxes at the electrode surface
+With Maxwell-Boltzmann distribution of electron concentration
 2. Dynamic calculation of sheath and presheath applying RF bias
+\
+Spatial distributions of potential, concentrations and velocity are fixed at plasma boundary as this region does not contribute much at electrode boundary. Ion current on electrode is calculated as product of ion concentration and velocity. Electron current is calculated in equivalent circuit model as diode current.  
 3. Monte-Carlo transport of ions across presheath and sheath
 

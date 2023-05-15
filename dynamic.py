@@ -8,7 +8,8 @@ from scipy.integrate import quad
 from pynverse import inversefunc
 
 """
-1D Fluid model of collisionless Ar plasma sheath for electrons and ions
+1D Fluid model of collisionless Ar plasma sheath
+Ions are described in fluid model, electrons have Boltzmann distribution
 Electrode potential in equivalent circuit model
 """
 
@@ -72,54 +73,19 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
 
     # boundary condition on electrode surface: (V)el = Ve
     a[Nel-1] = 0
-    #b[Nx-1] = (b[Nx-2] - (ne[Nx-1] - ni[Nx-1]) * dx * dx)/(2-a[Nx-2])
     b[Nel-1] = Ve  #  (V)p = 0
-    #b[Nx - 1] = b[Nx - 2] / (1 - a[Nx - 2])  # (dV/dx)p = 0
-    #print(b[Nel-2])
 
     # backward
     V[Nel-1] = b[Nel-1]
     for i in range(Nel-1, Nsh, -1):
         V[i-1] = a[i-1]*V[i]+b[i-1]
 
-
-    """
-    V1 = [0 for k in range(0, Nel)]
-    a = np.zeros([Nel, Nel])
-    b = [0 for k in range(0, Nel)]
-
-    #a[0, 0] = -1/dx
-    #a[0, 1] = 1 / dx
-    a[0, 0] = 1
-    a[1, 1] = 1
-    a[2, 2] = 1
-
-    b[0] = 0
-    b[1] = 0
-    b[2] = -0.001*dx*dx * e * n0 / eps0
-
-
-    for i in range(3, Nel-1):
-        a[i, i] = -2/dx/dx
-        a[i, i-1] = 1/dx/dx
-        a[i, i+1] = 1/dx/dx
-        b[i] = e / eps0 * (ni[i] - ne[i])
-
-    a[Nel-1, Nel-1] = 1
-    b[Nel-1] = Ve
-    #a[0, 1] = 1 / dx
-
-    V1 = np.linalg.solve(a, b)
-    for i in range(0, Nel):
-        V[i] = V1[i]
-    """
-
     return V
 
 def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
 
     """
-    sweep method solution of momentum balance equation
+    Explicit conservative upwind scheme
     """
     #dt = 1E-11  # s
     dx = 1E-7
@@ -134,6 +100,7 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
     for i in range(0, Nel):
         Psi[i] = e*V[i]/kTe
         N[i] = n[i]/n0
+
     """
     # initialisation of sweeping coefficients
     a = [0 for k in range(0, Nel)]
@@ -183,72 +150,11 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
 
     return u
 
-def momentum_e(V, n, uprev, kTe, de, n0, Nel, Nx, dt):
-
-    """
-    sweep method solution of momentum balance equation
-    """
-    #dt = 1E-11  # s
-    dx = 1E-7
-    e = 1.6E-19
-    me = 9.11E-31  # kg
-    gamma = 1+de
-    u = [0 for k in range(0, Nx)]
-
-    Psi = [0 for k in range(0, Nel)]
-    N = [0 for k in range(0, Nel)]
-
-    for i in range(0, Nel):
-        Psi[i] = e*V[i]/kTe
-        N[i] = n[i]/n0
-    """
-    # initialisation of sweeping coefficients
-    a = [0 for k in range(0, Nel)]
-    b = [0 for k in range(0, Nel)]
-
-    # forward
-    # boundary conditions on plasma surface: (du/dx)pl = 0
-    #a[0] = -uprev[1] * dt / 4.0 / dx
-    #b[0] = (V[1] - V[0])/dx/m - uprev[0]/dt
-    a[0] = 1
-    b[0] = 0
-
-    for i in range(1, Nel - 1):
-        a[i] = -uprev[i+1]*dt / 4.0 / dx / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
-        b[i] = (uprev[i-1]*dt / 4.0 / dx * b[i - 1] + kTe/me*dt*(Psi[i+1]-Psi[i]) /dx - kTe/me*dt*m.pow(N[i], gamma-2)*(N[i+1]-N[i])/dx + uprev[i]) / (1 - uprev[i - 1]*dt * a[i-1] / 4.0 / dx)
-        #print(b[i])
-
-    # boundary condition on electrode surface: (du/dx)el = 0
-    a[Nel - 1] = 0
-    #b[Nx - 1] = (-uprev[Nx-2] / 4.0 / dx * b[Nx-2] + (V[Nx-1]-V[Nx-2])/dx - uprev[Nx-1] / dt) / (-1 / dt + uprev[Nx-2] * a[Nx-2] / 4.0 / dx)  # boundary conditions for u (u[Nx-1]-u[Nx-2])
-    #b[Nx - 1] = 0  # (u)p = 0
-    b[Nel - 1] = b[Nel - 2]/(1 - a[Nel - 2])  # (du/dx)el = 0
-
-    # backward
-    u[Nel - 1] = b[Nel - 1]
-    for i in range(Nel - 1, 0, -1):
-        u[i - 1] = a[i - 1] * u[i] + b[i - 1]
-    """
-    # Explicit conservative upwind scheme
-
-    u[0] = m.sqrt(3*kTe/me)
-
-    for i in range(1, Nel):
-        u[i] = uprev[i]+dt*(kTe/me*(Psi[i]-Psi[i-1]) /dx - kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx-(uprev[i]*uprev[i]-uprev[i-1]*uprev[i-1])/2/dx)
-        #print(- kTe/me*m.pow(N[i], gamma-2)*(N[i]-N[i-1])/dx)
-
-    #print(u[Nel-1])
-    #print(kTe/me*(Psi[Nel-1]-Psi[Nel-2]) /dx)
-    #print(kTe/me*m.pow(N[Nel-1], gamma-2)*(N[Nel-1]-N[Nel-2])/dx)
-    #print(-(uprev[Nel-1]*uprev[Nel-1]-uprev[Nel-2]*uprev[Nel-2])/2/dx)
-
-
-    return u
 
 def continuity(u, nprev, Nel, Nsh, Nx, dt):
 
     """
-    sweep method solution of continuity equation
+    Explicit conservative upwind scheme
     """
 
     #dt = 1E-11  # s
@@ -313,6 +219,10 @@ def continuity(u, nprev, Nel, Nsh, Nx, dt):
 
 def concentration_e(V, kTe, n0, Nel, Nx):
 
+    """
+    Boltzmann distribution for electrons
+    """
+
     dx = 1E-7
     e = 1.6E-19
     n = [0 for k in range(0, Nx)]
@@ -329,7 +239,7 @@ def main():
     dt = 1E-12 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
-    Nsh = 1000
+    Nsh = 800
     Nt = 200000
     tEnd = 50  # ns
 
@@ -344,10 +254,8 @@ def main():
     n0 = 3E17  # m-3
     Vdc = -17
     C = 1E-7
-    #C /= 1.6E-19
     gamma = 5/3
-    de = 0.2327775
-    Arf = 15
+    Arf = 20
     w = 13560000 # Hz
 
 
@@ -434,6 +342,9 @@ def main():
     ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
+
+    # electron current in diode model
+
     q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
     VdcRF[0] = q
     VRF[0] = 0
