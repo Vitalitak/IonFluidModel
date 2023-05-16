@@ -253,8 +253,8 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C0 = 1e-10 # F
-    S = 1e-3 # m^2 electrode area
+    C0 = 5e-10 # F
+    S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
     Arf = 20
