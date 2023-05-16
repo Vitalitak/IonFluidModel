@@ -253,7 +253,9 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C = 1E-7
+    C0 = 1e-10 # F
+    S = 1e-3 # m^2 electrode area
+    C = C0/S
     gamma = 5/3
     Arf = 20
     w = 13560000 # Hz
@@ -331,6 +333,8 @@ def main():
     VdcRF = [0 for k in range(0, int(2*Nt+1))]
     Iel = [0 for k in range(0, int(2*Nt+1))]
     VRF = [0 for k in range(0, int(2*Nt+1))]
+    P = [0 for k in range(0, int(2*Nt+1))]
+    Pav = 0
     time = [dt * k for k in range(0, int(2*Nt+1))]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
@@ -409,8 +413,17 @@ def main():
             e * (V_1[Nel - 1]-V_1[0]) / kTe))
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
-    # graph plot
+    for i in range(0, int(2*Nt+1)):
+        P[i] = Iel[i] * S * VdcRF[i]
 
+    for i in range(int(2/w/dt), int(3/w/dt)):
+        Pav += P[i] * dt
+
+    Pav = Pav * w
+    print(Pav)
+
+    # graph plot
+    """
     Ii = [0 for k in range(0, Nx)]
     Ii_1 = [0 for k in range(0, Nx)]
     Ie = [0 for k in range(0, Nx)]
@@ -421,10 +434,15 @@ def main():
         #print(ni_1[i]*ui_1[i])
 
     #print(Ii[Nel-1]-Ie[Nel-1])
+    """
 
     #plt.plot(x, Ii, 'r')
     plt.plot(time, Iel, 'b')
-    plt.ylabel('I')
+    plt.ylabel('j, A/m2')
+    plt.show()
+
+    plt.plot(time, P, 'b')
+    plt.ylabel('P, W')
     plt.show()
 
     plt.plot(x, V, 'r')
