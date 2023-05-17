@@ -253,11 +253,11 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C0 = 5e-10 # F
+    C0 = 1e-7 # F
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
-    Arf = 20
+    Arf = 10
     w = 13560000 # Hz
 
 
@@ -332,6 +332,7 @@ def main():
     #ue_1 = [0 for k in range(0, Nx)]
     VdcRF = [0 for k in range(0, int(2*Nt+1))]
     Iel = [0 for k in range(0, int(2*Nt+1))]
+    Ii = [0 for k in range(0, int(2*Nt+1))]
     VRF = [0 for k in range(0, int(2*Nt+1))]
     P = [0 for k in range(0, int(2*Nt+1))]
     Pav = 0
@@ -353,8 +354,9 @@ def main():
     q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
     VdcRF[0] = q
     Iel[0] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe))
+    Ii[0] = e * ni_1[Nel - 1] * ui_1[Nel - 1]
     VRF[0] = 0
-    print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
+    #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
 
     t = 0
 
@@ -378,6 +380,7 @@ def main():
         VdcRF[int(2 * i - 1)] = q
         Iel[int(2 * i - 1)] = e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe))
+        Ii[int(2 * i - 1)] = e * ni_2[Nel - 1] * ui_2[Nel - 1]
         VRF[int(2 * i - 1)] = - Arf * m.sin(w * 2 * m.pi * t)
         #print(e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             #e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C)
@@ -411,13 +414,14 @@ def main():
         VRF[int(2 * i)] = - Arf * m.sin(w * 2 * m.pi * t)
         Iel[int(2 * i)] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe))
+        Ii[int(2 * i)] = e * ni_1[Nel - 1] * ui_1[Nel - 1]
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
 
     for i in range(0, int(2*Nt+1)):
         P[i] = Iel[i] * S * VdcRF[i]
 
     for i in range(int(2/w/dt), int(3/w/dt)):
-        Pav += P[i] * dt
+        Pav += 0.5*(P[i]+P[i+1]) * dt
 
     Pav = Pav * w
     print(Pav)
@@ -436,7 +440,7 @@ def main():
     #print(Ii[Nel-1]-Ie[Nel-1])
     """
 
-    #plt.plot(x, Ii, 'r')
+    plt.plot(time, Ii, 'r')
     plt.plot(time, Iel, 'b')
     plt.ylabel('j, A/m2')
     plt.show()
@@ -455,7 +459,7 @@ def main():
     plt.plot(time, VdcRF, 'r')
     plt.plot(time, VRF, 'b')
     plt.ylabel('V')
-    plt.axis([-1e-9, 5e-7, -23, 21])
+    plt.axis([-1e-9, 5e-7, -13, 12])
     plt.grid(visible='True', which='both', axis='y')
     plt.show()
 
