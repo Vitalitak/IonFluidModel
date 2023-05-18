@@ -240,7 +240,8 @@ def main():
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 800
-    Nt = 200000
+    #Nt = 200000
+    Nper = 20
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -253,19 +254,22 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C0 = 1e-7 # F
+    C0 = 5e-7 # F
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
     Arf = 10
     w = 13560000 # Hz
 
+    Nt = int(Nper / w / dt / 2)
+
+    print(Nt)
+    print(int((Nper-2)/w/dt))
+    print(int((Nper - 1) / w / dt))
 
     kTi = Ti * 1.6E-19  # J
     kTe = Te * 1.6E-19  # J
 
-
-    #Nt = int(tEnd / dt)
 
     # stationary system for initial conditions
 
@@ -335,7 +339,7 @@ def main():
     Ii = [0 for k in range(0, int(2*Nt+1))]
     VRF = [0 for k in range(0, int(2*Nt+1))]
     P = [0 for k in range(0, int(2*Nt+1))]
-    Pav = 0
+    Pav = [0 for k in range(0, Nper)]
     time = [dt * k for k in range(0, int(2*Nt+1))]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
@@ -420,11 +424,13 @@ def main():
     for i in range(0, int(2*Nt+1)):
         P[i] = Iel[i] * S * VdcRF[i]
 
-    for i in range(int(2/w/dt), int(3/w/dt)):
-        Pav += 0.5*(P[i]+P[i+1]) * dt
+    for j in range(0, Nper-1):
+        for i in range(int(j/w/dt), int((j+1)/w/dt)):
+            Pav[j] += 0.5*(P[i]+P[i+1]) * dt
+        Pav[j] = w * Pav[j]
 
-    Pav = Pav * w
-    print(Pav)
+    #Pav = Pav * w
+    print(Pav[Nper-1])
 
     # graph plot
     """
@@ -459,9 +465,19 @@ def main():
     plt.plot(time, VdcRF, 'r')
     plt.plot(time, VRF, 'b')
     plt.ylabel('V')
-    plt.axis([-1e-9, 5e-7, -13, 12])
+    #plt.axis([-1e-9, 5e-7, -13, 12])
     plt.grid(visible='True', which='both', axis='y')
     plt.show()
+
+    f = open("VDC.txt", "w")
+    for d in VdcRF:
+        f.write(f"{d}\n")
+    f.close()
+
+    f = open("P.txt", "w")
+    for d in Pav:
+        f.write(f"{d}\n")
+    f.close()
 
     plt.plot(x, ni, 'r--')
     plt.plot(x, ni_1, 'r-')
