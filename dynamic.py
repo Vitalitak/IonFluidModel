@@ -241,7 +241,7 @@ def main():
     Nx = int(boxsize/dx)
     Nsh = 800
     #Nt = 200000
-    Nper = 40
+    Nper = 100
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -258,7 +258,7 @@ def main():
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
-    Arf = 10
+    Arf = 20
     w = 13560000 # Hz
 
     Nt = int(Nper / w / dt / 2)
