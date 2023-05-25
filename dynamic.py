@@ -254,11 +254,11 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C0 = 5e-7 # F
+    C0 = 3e-7 # F
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
-    Arf = 20
+    Arf = 15
     w = 13560000 # Hz
 
     Nt = int(Nper / w / dt / 2)
