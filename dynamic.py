@@ -241,7 +241,7 @@ def main():
     Nx = int(boxsize/dx)
     Nsh = 1000
     #Nt = 200000
-    Nper = 2
+    Nper = 130
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -339,7 +339,7 @@ def main():
     Ii = [0 for k in range(0, int(2*Nt+1))]
     VRF = [0 for k in range(0, int(2*Nt+1))]
     P = [0 for k in range(0, int(2*Nt+1))]
-    #Pav = [0 for k in range(0, Nper)]
+    Pav = [0 for k in range(0, Nper)]
     time = [dt * k for k in range(0, int(2*Nt+1))]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
@@ -431,7 +431,7 @@ def main():
 
     for i in range(0, int(2*Nt+1)):
         P[i] = Iel[i] * S * VdcRF[i]
-    """
+
     for j in range(0, Nper-1):
         for i in range(int(j/w/dt), int((j+1)/w/dt)):
             Pav[j] += 0.5*(P[i]+P[i+1]) * dt
@@ -439,7 +439,7 @@ def main():
 
     #Pav = Pav * w
     print(Pav[Nper-1])
-    """
+
     # graph plot
     """
     Ii = [0 for k in range(0, Nx)]
@@ -481,12 +481,12 @@ def main():
     for d in VdcRF:
         f.write(f"{d}\n")
     f.close()
-    """
+
     f = open("P.txt", "w")
     for d in Pav:
         f.write(f"{d}\n")
     f.close()
-    """
+
     plt.plot(x, ni, 'r--')
     plt.plot(x, ni_1, 'r-')
     plt.plot(x, ne, 'b--')
