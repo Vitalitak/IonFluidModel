@@ -241,7 +241,7 @@ def main():
     Nx = int(boxsize/dx)
     Nsh = 800
     #Nt = 200000
-    Nper = 120
+    Nper = 0.8
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -258,7 +258,7 @@ def main():
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
-    Arf = 15
+    Arf = 18
     w = 13560000 # Hz
 
     Nt = int(Nper / w / dt / 2)
@@ -339,7 +339,7 @@ def main():
     Ii = [0 for k in range(0, int(2*Nt+1))]
     VRF = [0 for k in range(0, int(2*Nt+1))]
     P = [0 for k in range(0, int(2*Nt+1))]
-    Pav = [0 for k in range(0, Nper)]
+    #Pav = [0 for k in range(0, Nper)]
     time = [dt * k for k in range(0, int(2*Nt+1))]
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
@@ -355,7 +355,10 @@ def main():
 
     # electron current in diode model
 
-    q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
+    if V_1[Nel - 1] < 0:
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
+    else:
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4) * dt / C
     VdcRF[0] = q
     Iel[0] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe))
     Ii[0] = e * ni_1[Nel - 1] * ui_1[Nel - 1]
@@ -379,8 +382,11 @@ def main():
         ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
-        q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
+        if V_2[Nel - 1]<0:
+            q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
+        else:
+            q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4) * dt / C
         VdcRF[int(2 * i - 1)] = q
         Iel[int(2 * i - 1)] = e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe))
@@ -410,9 +416,11 @@ def main():
         V_1 = Pois(ne_1, ni_1, Vel3, dx, Nel, Nx)
         """
         #q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
-
-        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
+        if V_1[Nel - 1] < 0:
+            q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
+        else:
+            q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4) * dt / C
 
         VdcRF[int(2 * i)] = q
         VRF[int(2 * i)] = - Arf * m.sin(w * 2 * m.pi * t)
@@ -423,7 +431,7 @@ def main():
 
     for i in range(0, int(2*Nt+1)):
         P[i] = Iel[i] * S * VdcRF[i]
-
+    """
     for j in range(0, Nper-1):
         for i in range(int(j/w/dt), int((j+1)/w/dt)):
             Pav[j] += 0.5*(P[i]+P[i+1]) * dt
@@ -431,7 +439,7 @@ def main():
 
     #Pav = Pav * w
     print(Pav[Nper-1])
-
+    """
     # graph plot
     """
     Ii = [0 for k in range(0, Nx)]
@@ -473,12 +481,12 @@ def main():
     for d in VdcRF:
         f.write(f"{d}\n")
     f.close()
-
+    """
     f = open("P.txt", "w")
     for d in Pav:
         f.write(f"{d}\n")
     f.close()
-
+    """
     plt.plot(x, ni, 'r--')
     plt.plot(x, ni_1, 'r-')
     plt.plot(x, ne, 'b--')
