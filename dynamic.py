@@ -241,7 +241,7 @@ def main():
     Nx = int(boxsize/dx)
     Nsh = 800
     #Nt = 200000
-    Nper = 100
+    Nper = 120
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -254,7 +254,7 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C0 = 3e-7 # F
+    C0 = 1e-6 # F
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
