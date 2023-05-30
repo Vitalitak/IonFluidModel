@@ -273,7 +273,7 @@ def concentration_e(V, kTe, n0, Nel, Nx):
     for i in range(0, Nel):
         n[i] = n0 * m.exp(e*V[i]/kTe)
     """
-    n[0:Nel] = n0* m.e ** (e*V[0:Nel]/kTe)
+    n[0:Nel] = n0 * m.e ** (e*V[0:Nel]/kTe)
 
     return n
 
@@ -286,7 +286,7 @@ def main():
     Nx = int(boxsize/dx)
     Nsh = 1000
     #Nt = 200000
-    Nper = 10
+    Nper = 100
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -299,11 +299,11 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C0 = 2e-6 # F
+    C0 = 3e-6 # F
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
-    Arf = 19
+    Arf = 17
     w = 13560000 # Hz
 
     Nt = int(Nper / w / dt / 2)
