@@ -33,12 +33,15 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
     e = 1.6E-19
     eps0 = 8.85E-12
 
-    V = [0 for k in range(0, Nx)]
+    #V = [0 for k in range(0, Nx)]
+    V = np.zeros(Nx)
 
 
     # initialisation of sweeping coefficients
-    a = [0 for k in range(0, Nel)]
-    b = [0 for k in range(0, Nel)]
+    #a = [0 for k in range(0, Nel)]
+    #b = [0 for k in range(0, Nel)]
+    a = np.zeros(Nel)
+    b = np.zeros(Nel)
 
     # forward
     # boundary conditions on plasma surface: (dV/dx)pl = 0 or (V)pl = 0
@@ -71,6 +74,16 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
         a[i] = -1 / (-2 + a[i - 1])
         b[i] = (-b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (-2 + a[i - 1])
 
+    """
+    V[0:Nsh] = Vprev[0:Nsh]
+    a[0:Nsh] = 0
+    b[0:Nsh] = 0
+    a[Nsh] = 0
+    b[Nsh] = Vprev[Nsh]
+
+    a[Nsh+1:Nel - 1] = -1 / (-2 + a[Nsh:Nel - 2])
+    b[Nsh+1:Nel - 1] = (-b[Nsh:Nel - 2] - e / eps0 * (ni[Nsh+1:Nel - 1] - ne[Nsh+1:Nel - 1]) * dx * dx) / (-2 + a[Nsh:Nel - 2])
+    """
     # boundary condition on electrode surface: (V)el = Ve
     a[Nel-1] = 0
     b[Nel-1] = Ve  #  (V)p = 0
@@ -79,6 +92,16 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
     V[Nel-1] = b[Nel-1]
     for i in range(Nel-1, Nsh, -1):
         V[i-1] = a[i-1]*V[i]+b[i-1]
+
+    """
+    #print(b[Nel-2:Nsh-1:-1])
+
+    #V[Nel - 1] = b[Nel - 1]
+    #print(V[Nel-1:Nsh:-1])
+    #print(a[Nel-2:Nsh-1:-1])
+    #print(b[Nel-2:Nsh-1:-1])
+    V[Nel-2:Nsh-1:-1] = a[Nel-2:Nsh-1:-1]*V[Nel-1:Nsh:-1]+b[Nel-2:Nsh-1:-1]
+    """
 
     return V
 
@@ -92,14 +115,21 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
     e = 1.6E-19
     mi = 6.68E-26  # kg
     gamma = 5 / 3
-    u = [0 for k in range(0, Nx)]
+    #u = [0 for k in range(0, Nx)]
+    u = np.zeros(Nx)
 
-    Psi = [0 for k in range(0, Nel)]
-    N = [0 for k in range(0, Nel)]
+    #Psi = [0 for k in range(0, Nel)]
+    #N = [0 for k in range(0, Nel)]
+    Psi = np.zeros(Nx)
+    N = np.zeros(Nx)
 
+    """
     for i in range(0, Nel):
         Psi[i] = e*V[i]/kTe
         N[i] = n[i]/n0
+    """
+    Psi = e*V/kTe
+    N = n/n0
 
     """
     # initialisation of sweeping coefficients
@@ -136,7 +166,7 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
     u[1] = uprev[1]
     u[2] = uprev[2]
     """
-
+    """
     for i in range(0, Nsh):
         u[i] = uprev[i]
 
@@ -147,6 +177,13 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
                     #N[Nel-1] - N[Nel-2]) / dx - (uprev[Nel-1] * uprev[Nel-1] - uprev[Nel-2] * uprev[Nel-2]) / dx))
     #print(dt * (-kTe / mi * (Psi[Nel - 1] - Psi[Nel - 2]) / dx - kTi / mi * m.pow(N[Nel - 1], gamma - 2) * (
             #N[Nel - 1] - N[Nel - 2]) / dx - (uprev[Nel - 1] * uprev[Nel - 1] - uprev[Nel - 2] * uprev[Nel - 2]) / dx))
+    """
+    u[0:Nsh] = uprev[0:Nsh]
+    #print(Psi[Nsh-1:Nel-1])
+    #print(Psi[Nsh:Nel])
+    #print(N[Nsh:Nel] ** (gamma - 2))
+    u[Nsh:Nel] = uprev[Nsh:Nel] + dt * (-kTe / mi * (Psi[Nsh:Nel] - Psi[Nsh-1:Nel-1]) / dx - kTi / mi * (N[Nsh:Nel] ** (gamma - 2)) * (
+                    N[Nsh:Nel] - N[Nsh-1:Nel-1]) / dx - (uprev[Nsh:Nel] * uprev[Nsh:Nel] - uprev[Nsh-1:Nel-1] * uprev[Nsh-1:Nel-1]) / dx)
 
     return u
 
@@ -159,7 +196,8 @@ def continuity(u, nprev, Nel, Nsh, Nx, dt):
 
     #dt = 1E-11  # s
     dx = 1E-7
-    n = [0 for k in range(0, Nx)]
+    #n = [0 for k in range(0, Nx)]
+    n = np.zeros(Nx)
 
     """
     N = [0 for k in range(0, Nel)]
@@ -207,12 +245,16 @@ def continuity(u, nprev, Nel, Nsh, Nx, dt):
     n[1] = nprev[1]
     n[2] = nprev[2]
     """
-    for i in range(0, Nsh):
-        n[i] = nprev[i]
+    #for i in range(0, Nsh):
+        #n[i] = nprev[i]
 
+    n[0:Nsh] = nprev[0:Nsh]
+    """
     for i in range(Nsh, Nel):
         n[i] = nprev[i] - dt * ((nprev[i]*u[i]-nprev[i-1]*u[i-1])/dx)
         #print(((nprev[i]-nprev[i-1])*u[i]+(u[i]-u[i-1])*nprev[i]))
+    """
+    n[Nsh:Nel] = nprev[Nsh:Nel] - dt * ((nprev[Nsh:Nel]*u[Nsh:Nel]-nprev[Nsh-1:Nel - 1]*u[Nsh-1:Nel-1])/dx)
 
     #print(((nprev[3] - nprev[2]) * u[3] + (u[3] - u[2]) * nprev[3]))
     return n
@@ -225,10 +267,13 @@ def concentration_e(V, kTe, n0, Nel, Nx):
 
     dx = 1E-7
     e = 1.6E-19
-    n = [0 for k in range(0, Nx)]
-
+    #n = [0 for k in range(0, Nx)]
+    n = np.zeros(Nx)
+    """
     for i in range(0, Nel):
         n[i] = n0 * m.exp(e*V[i]/kTe)
+    """
+    n[0:Nel] = n0* m.e ** (e*V[0:Nel]/kTe)
 
     return n
 
@@ -241,7 +286,7 @@ def main():
     Nx = int(boxsize/dx)
     Nsh = 1000
     #Nt = 200000
-    Nper = 130
+    Nper = 10
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -254,7 +299,7 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    C0 = 1e-6 # F
+    C0 = 2e-6 # F
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
@@ -262,6 +307,7 @@ def main():
     w = 13560000 # Hz
 
     Nt = int(Nper / w / dt / 2)
+    #Nt = 0
 
     print(Nt)
     print(int((Nper-2)/w/dt))
@@ -326,6 +372,11 @@ def main():
         ue[i] = m.sqrt(kTe / me) * m.sqrt(3+2*e*V[i]/kTe+2*(de+1)/de*(1-m.exp(de*e*V[i]/kTe)))
     """
 
+    x = np.array(x)
+    V = np.array(V)
+    ni = np.array(ni)
+    ne = np.array(ne)
+    ui = np.array(ui)
 
     # dynamic calculations
 
@@ -334,6 +385,7 @@ def main():
     ni_p = [0 for k in range(0, Nx)]
     ne_p = [0 for k in range(0, Nx)]
     #ue_1 = [0 for k in range(0, Nx)]
+    """
     VdcRF = [0 for k in range(0, int(2*Nt+1))]
     Iel = [0 for k in range(0, int(2*Nt+1))]
     Ii = [0 for k in range(0, int(2*Nt+1))]
@@ -341,6 +393,16 @@ def main():
     P = [0 for k in range(0, int(2*Nt+1))]
     Pav = [0 for k in range(0, Nper)]
     time = [dt * k for k in range(0, int(2*Nt+1))]
+    """
+
+    VdcRF = np.zeros(int(2*Nt+1))
+    Iel = np.zeros(int(2 * Nt + 1))
+    Ii = np.zeros(int(2 * Nt + 1))
+    VRF = np.zeros(int(2 * Nt + 1))
+    P = np.zeros(int(2 * Nt + 1))
+    Pav = np.zeros(int(Nper))
+    time = np.arange(2 * Nt + 1)*dt
+
     q = 0
     #Vel = V[Nel-1] - 10 * m.sin(13560000*2*m.pi*dt)+q
     Vel = V[Nel-1]+q
@@ -441,18 +503,6 @@ def main():
     print(Pav[Nper-1])
 
     # graph plot
-    """
-    Ii = [0 for k in range(0, Nx)]
-    Ii_1 = [0 for k in range(0, Nx)]
-    Ie = [0 for k in range(0, Nx)]
-
-    for i in range(0, Nx):
-        Ii[i] = ni[i]*ui[i]
-        Ii_1[i] = ni_1[i]*ui_1[i]
-        #print(ni_1[i]*ui_1[i])
-
-    #print(Ii[Nel-1]-Ie[Nel-1])
-    """
 
     plt.plot(time, Ii, 'r')
     plt.plot(time, Iel, 'b')
