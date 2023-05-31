@@ -101,7 +101,8 @@ def main():
     Vdc = -17
     #C = 1.4E-16
     #C /= 1.6E-19
-    gamma = 5/3
+    #gamma = 5/3
+    gamma = 1.2
 
 
     kTi = Ti * 1.6E-19  # J
@@ -120,7 +121,6 @@ def main():
     Psi = [0 for k in range(0, Nx)]
     Ni = [0 for k in range(0, Nx)]
     dPsidx = [0 for k in range(0, Nx)]
-    Vrf = 0
 
     Psil = e*Vdc/kTe
 
