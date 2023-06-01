@@ -8,14 +8,16 @@ from pynverse import inversefunc
 
 def main():
     gamma = 5/3
-    Te = 2.70  # eV
+    Te = 2.68  # eV
     Ti = 0.05  # eV
     dPsi = -0.01
-    Psi0 = -1e-7
+    #Psi0 = -0.5
+    V0 = -2.68
+    Psi0 = V0/Te
 
     FPsi = lambda x: (5 * gamma - 3) * Ti / Te / 2 / (gamma - 1) * (
                 1 - 3 * (gamma - 1) / (5 * gamma - 3) * m.pow(x, -2) - 2 * gamma / (5 * gamma - 3) * m.pow(x,
-                                                                                                           gamma - 1))
+                                                                                                           gamma - 1)) + V0/Te
     FN = inversefunc(FPsi, domain=[0.001, 1])
 
     Ni = [0 for k in range(0, 1000)]

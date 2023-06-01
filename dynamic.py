@@ -279,14 +279,14 @@ def concentration_e(V, kTe, n0, Nel, Nx):
 
 def main():
     # initialisation of parameters
-    boxsize = 3.5E-4  # m
+    boxsize = 4E-4  # m
     #a = 1E-6
     dt = 1E-12 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
-    Nsh = 1
+    Nsh = 300
     #Nt = 200000
-    Nper = 100
+    Nper = 0.7
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -295,7 +295,7 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.70  # eV
+    Te = 2.68  # eV
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
@@ -306,8 +306,8 @@ def main():
     Arf = 17
     w = 13560000 # Hz
 
-    #Nt = int(Nper / w / dt / 2)
-    Nt = 0
+    Nt = int(Nper / w / dt / 2)
+    #Nt = 10
 
     print(Nt)
     print(int((Nper-2)/w/dt))
