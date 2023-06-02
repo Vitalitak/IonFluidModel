@@ -52,11 +52,11 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Te, Psi0, Psil, FN):
     # dx = x[Npl - 1]-x[Npl - 2]
     # Nx = len[Ksi]
 
-    """
+
     Psi[0] = Psi0
-    A = 2 * e * e * n0 / eps0 / kTe * m.exp(Psi0)
+    A = 2 * e * e * n0 / eps0 / kTe
     B = -2 * e * e * n0 / eps0 / kTe
-    C = -2 * e * e * n0 / eps0 / kTe * m.exp(Psi0)
+    C = -2 * e * e * n0 / eps0 / kTe
 
 
 
@@ -69,13 +69,13 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Te, Psi0, Psil, FN):
     while (Psi[i] > Psil) and (i<Nx-1):
         print(i)
         f1 = -m.pow(-(A * m.exp(Psi[i]) + B * quad(FN, Psi0, Psi[i])[0]+C), 0.5)
-        #print(f1)
         f2 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, Psi0, Psi[i]+ dx / 2 * f1)[0]+C), 0.5)
         f3 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, Psi0, Psi[i]+ dx / 2 * f2)[0]+C), 0.5)
         f4 = -m.pow(-(A * m.exp(Psi[i] + dx * f3) + B * quad(FN, Psi0, Psi[i]+ dx * f3)[0]+C), 0.5)
         #print(B * quad(FN, Psi0, Psi[i]+ dx * f3)[0])
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
         i=i+1
+
     """
     dPsi = 0.1
     Psi[0] = Psi0-dPsi
@@ -97,6 +97,7 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Te, Psi0, Psil, FN):
         f4 = -m.pow((A * m.exp(Psi[i] + dx * f3) + B * quad(FN, Psi[i] + dx * f3, Psi0)[0] + C), 0.5)
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
         i = i + 1
+    """
 
     Nel = i + 1
 
@@ -149,7 +150,7 @@ def main():
     dPsidx = [0 for k in range(0, Nx)]
 
     Psil = e*Vdc/kTe
-    Psi0 = -1
+    Psi0 = -1e-7
 
     FPsi = lambda x: (5*gamma-3)*Ti/Te/2/(gamma-1)*(1-3*(gamma-1)/(5*gamma-3)*m.pow(x, -2)-2*gamma/(5*gamma-3)*m.pow(x, gamma-1)) + Psi0
 
