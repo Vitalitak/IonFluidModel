@@ -71,8 +71,10 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
     b[Nsh] = Vprev[Nsh]
 
     for i in range(Nsh+1, Nel - 1):
-        a[i] = -1 / (-2 + a[i - 1])
-        b[i] = (-b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (-2 + a[i - 1])
+        #a[i] = -1 / (-2 + a[i - 1])
+        a[i] = 1 / (2 - a[i - 1])
+        #b[i] = (-b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (-2 + a[i - 1])
+        b[i] = (b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (2 - a[i - 1])
 
     """
     V[0:Nsh] = Vprev[0:Nsh]
@@ -295,7 +297,7 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.68  # eV
+    Te = 2.78  # eV
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
@@ -303,11 +305,11 @@ def main():
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
-    Arf = 0
+    Arf = 20
     w = 13560000 # Hz
 
-    #Nt = int(Nper / w / dt / 2)
-    Nt = 0
+    Nt = int(Nper / w / dt / 2)
+    #Nt = 0
 
     print(Nt)
     print(int((Nper-2)/w/dt))
@@ -418,11 +420,11 @@ def main():
     # electron current in diode model
 
     if V_1[Nel - 1] < 0:
-        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C
     else:
-        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4) * dt / C
+        q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4) * dt / C
     VdcRF[0] = q
-    Iel[0] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe))
+    Iel[0] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(3*kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe))
     Ii[0] = e * ni_1[Nel - 1] * ui_1[Nel - 1]
     VRF[0] = 0
     #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0]*m.sqrt(kTe/me)/4*m.exp(e*(V_1[Nel - 1]-V_1[0])/kTe)) * dt / C)
@@ -445,12 +447,12 @@ def main():
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
         if V_2[Nel - 1]<0:
-            q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
+            q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe)) * dt / C
         else:
-            q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4) * dt / C
+            q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4) * dt / C
         VdcRF[int(2 * i - 1)] = q
-        Iel[int(2 * i - 1)] = e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(kTe / me) / 4 * m.exp(
+        Iel[int(2 * i - 1)] = e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_2[Nel - 1] - V_2[0]) / kTe))
         Ii[int(2 * i - 1)] = e * ni_2[Nel - 1] * ui_2[Nel - 1]
         VRF[int(2 * i - 1)] = - Arf * m.sin(w * 2 * m.pi * t)
@@ -479,14 +481,14 @@ def main():
         """
         #q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C
         if V_1[Nel - 1] < 0:
-            q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
+            q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe)) * dt / C
         else:
-            q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4) * dt / C
+            q += e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4) * dt / C
 
         VdcRF[int(2 * i)] = q
         VRF[int(2 * i)] = - Arf * m.sin(w * 2 * m.pi * t)
-        Iel[int(2 * i)] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(kTe / me) / 4 * m.exp(
+        Iel[int(2 * i)] = e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[0] * m.sqrt(3*kTe / me) / 4 * m.exp(
             e * (V_1[Nel - 1]-V_1[0]) / kTe))
         Ii[int(2 * i)] = e * ni_1[Nel - 1] * ui_1[Nel - 1]
         #print(e * (ni_1[Nel - 1] * ui_1[Nel - 1] - ne_1[Nel - 1] * ue_1[Nel - 1])*dt / C)
@@ -501,6 +503,18 @@ def main():
     """
     #Pav = Pav * w
     #print(Pav[Nper-1])
+    NdV2 = [0 for k in range(0, Nx)]
+    dV2 = [0 for k in range(0, Nx)]
+
+    for i in range(1, Nx-2):
+        NdV2[i] = - e / eps0 * (ni_1[i] - ne_1[i])
+        dV2[i] = (-V_1[i-1] + 2 * V_1[i] - V_1[i+1]) / dx / dx
+
+    plt.plot(x, NdV2, 'r')
+    plt.plot(x, dV2, 'b')
+
+    plt.ylabel('d2V/dx2')
+    plt.show()
 
     # graph plot
 

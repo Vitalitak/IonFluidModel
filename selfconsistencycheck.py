@@ -46,7 +46,7 @@ def main():
 
     for i in range(1, Nx-2):
         NdV2[i] = - e / eps0 * (ni[i] - ne[i])
-        dV2[i] = (V[i-1] + 2 * V[i] - V[i+1]) / dx / dx
+        dV2[i] = (-V[i-1] + 2 * V[i] - V[i+1]) / dx / dx
 
     plt.plot(x, NdV2, 'r')
     plt.plot(x, dV2, 'b')

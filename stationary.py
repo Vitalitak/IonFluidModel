@@ -68,10 +68,10 @@ def RKPoisN(dx, Psi, Nsh, Nx, n0, Te, Psi0, Psil, FN):
     #for i in range(Nsh+2, Nx-1):
     while (Psi[i] > Psil) and (i<Nx-1):
         print(i)
-        f1 = -m.pow(-(A * m.exp(Psi[i]) + B * quad(FN, Psi0, Psi[i])[0]+C), 0.5)
-        f2 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, Psi0, Psi[i]+ dx / 2 * f1)[0]+C), 0.5)
-        f3 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, Psi0, Psi[i]+ dx / 2 * f2)[0]+C), 0.5)
-        f4 = -m.pow(-(A * m.exp(Psi[i] + dx * f3) + B * quad(FN, Psi0, Psi[i]+ dx * f3)[0]+C), 0.5)
+        f1 = -m.pow(-(A * m.exp(Psi[i]) + B * quad(FN, 0, Psi[i])[0]+C), 0.5)
+        f2 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f1) + B * quad(FN, 0, Psi[i]+ dx / 2 * f1)[0]+C), 0.5)
+        f3 = -m.pow(-(A * m.exp(Psi[i] + dx / 2 * f2) + B * quad(FN, 0, Psi[i]+ dx / 2 * f2)[0]+C), 0.5)
+        f4 = -m.pow(-(A * m.exp(Psi[i] + dx * f3) + B * quad(FN, 0, Psi[i]+ dx * f3)[0]+C), 0.5)
         #print(B * quad(FN, Psi0, Psi[i]+ dx * f3)[0])
         Psi[i + 1] = Psi[i] + dx / 6 * (f1 + 2 * f2 + 2 * f3 + f4)
         i=i+1
@@ -122,7 +122,7 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.68  # eV
+    Te = 2.78  # eV
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
@@ -152,9 +152,9 @@ def main():
     Psil = e*Vdc/kTe
     Psi0 = -1e-7
 
-    FPsi = lambda x: (5*gamma-3)*Ti/Te/2/(gamma-1)*(1-3*(gamma-1)/(5*gamma-3)*m.pow(x, -2)-2*gamma/(5*gamma-3)*m.pow(x, gamma-1)) + Psi0
+    FPsi = lambda x: (5*gamma-3)*Ti/Te/2/(gamma-1)*(1-3*(gamma-1)/(5*gamma-3)*m.pow(x, -2)-2*gamma/(5*gamma-3)*m.pow(x, gamma-1))
 
-    FN = inversefunc(FPsi, domain=[0.001, 1])
+    FN = inversefunc(FPsi, domain=[0.000000001, 1])
 
     """
     res, err = quad(FN, 0, -1)
@@ -174,17 +174,27 @@ def main():
         Ni[i] = FN(Psi[i])
         #print(Ni[i])
 
-    """
+
     for i in range(Nsh, Nx-1):
         dPsidx[i] = (Psi[i+1]-Psi[i])/dx
-    """
+
     for i in range(0, Nel):
         V[i] = Psi[i]*kTe/e
         ni[i] = Ni[i]*n0
         ne[i] = n0*m.exp(e*V[i]/kTe)
+        ui[i] = n0 * m.sqrt(3*kTi / mi) / ni[i]
+    """
+    ne[0] = n0
+    for i in range(1, Nel-1):
+        ne[i] = ni[i] + eps0 / e * (V[i-1] + 2 * V[i] - V[i+1]) / dx / dx
+    """
+    """
+    ni[0] = n0
+    ui[0] = n0 * m.sqrt(kTi / mi) / ni[0]
+    for i in range(1, Nel - 1):
+        ni[i] = ne[i] - eps0 / e * (V[i - 1] + 2 * V[i] - V[i + 1]) / dx / dx
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
-
-
+    """
     plt.plot(x, Psi)
     plt.ylabel('Psi')
     plt.show()
