@@ -72,9 +72,9 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
 
     for i in range(Nsh+1, Nel - 1):
         #a[i] = -1 / (-2 + a[i - 1])
-        a[i] = 1 / (2 - a[i - 1])
+        a[i] = -1 / (-2 + a[i - 1])
         #b[i] = (-b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (-2 + a[i - 1])
-        b[i] = (b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (2 - a[i - 1])
+        b[i] = (-b[i - 1] - e / eps0 * (ni[i] - ne[i]) * dx * dx) / (-2 + a[i - 1])
 
     """
     V[0:Nsh] = Vprev[0:Nsh]
@@ -305,7 +305,7 @@ def main():
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 5/3
-    Arf = 20
+    Arf = 0
     w = 13560000 # Hz
 
     #Nt = int(Nper / w / dt / 2)
@@ -508,7 +508,7 @@ def main():
 
     for i in range(1, Nx-2):
         NdV2[i] = - e / eps0 * (ni_1[i] - ne_1[i])
-        dV2[i] = (-V_1[i-1] + 2 * V_1[i] - V_1[i+1]) / dx / dx
+        dV2[i] = (V_1[i-1] - 2 * V_1[i] + V_1[i+1]) / dx / dx
 
     plt.plot(x, NdV2, 'r')
     plt.plot(x, dV2, 'b')
