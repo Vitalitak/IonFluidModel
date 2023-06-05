@@ -297,7 +297,7 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.78  # eV
+    Te = 2.68  # eV
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
@@ -308,8 +308,8 @@ def main():
     Arf = 20
     w = 13560000 # Hz
 
-    Nt = int(Nper / w / dt / 2)
-    #Nt = 0
+    #Nt = int(Nper / w / dt / 2)
+    Nt = 0
 
     print(Nt)
     print(int((Nper-2)/w/dt))

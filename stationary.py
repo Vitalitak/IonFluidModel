@@ -122,7 +122,7 @@ def main():
     eps0 = 8.85E-12
 
     # plasma parameters
-    Te = 2.78  # eV
+    Te = 2.68  # eV
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
