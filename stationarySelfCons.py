@@ -50,26 +50,29 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
     Delta = np.zeros(Nx)
     N = np.zeros(Nx)
 
+    Psi[0] = -1e-5
+    #Delta[0] = 1e-5
     N[0] = 1
 
     i = 0
 
     while (Psi[i] > Psil) and (i<Nx-1):
-        print(i)
+        #print(i)
         k1 = dx * (-Delta[i])
         l1 = dx * e * e * n0 / eps0 / kTe * (N[i]-m.exp(Psi[i]))
-        p1 = dx * (kTe*Delta[i]*N[i]-m.sqrt(mi*kTi)*nu) / kTi / (gamma * m.pow(N[i], gamma-1) - 1) * N[i] * N[i]
+        p1 = dx * (kTe*Delta[i]*N[i]-m.sqrt(mi*kTi)*nu) / kTi / (gamma * m.pow(N[i], gamma+1) - 1) * N[i] * N[i]
         k2 = dx * (-Delta[i]-l1/2)
         l2 = dx * e * e * n0 / eps0 / kTe * (N[i] + p1/2 -m.exp(Psi[i]+k1/2))
-        p2 = dx * (kTe*(Delta[i]+l1/2)*(N[i]+p1/2)-m.sqrt(mi*kTi)*nu) / kTi / (gamma * m.pow(N[i]+p1/2, gamma-1) - 1) * (N[i]+p1/2) * (N[i]+p1/2)
+        p2 = dx * (kTe*(Delta[i]+l1/2)*(N[i]+p1/2)-m.sqrt(mi*kTi)*nu) / kTi / (gamma * m.pow(N[i]+p1/2, gamma+1) - 1) * (N[i]+p1/2) * (N[i]+p1/2)
         k3 = dx * (-Delta[i]-l2/2)
         l3 = dx * e * e * n0 / eps0 / kTe * (N[i] + p2 / 2 - m.exp(Psi[i] + k2 / 2))
         p3 = dx * (kTe * (Delta[i] + l2 / 2) * (N[i] + p2 / 2) - m.sqrt(mi * kTi) * nu) / kTi / (
-                    gamma * m.pow(N[i] + p2 / 2, gamma - 1) - 1) * (N[i] + p2 / 2) * (N[i] + p2 / 2)
+                    gamma * m.pow(N[i] + p2 / 2, gamma + 1) - 1) * (N[i] + p2 / 2) * (N[i] + p2 / 2)
         k4 = dx * (-Delta[i]-l3)
         l4 = dx * e * e * n0 / eps0 / kTe * (N[i] + p3 - m.exp(Psi[i] + k3))
         p4 = dx * (kTe * (Delta[i] + l3) * (N[i] + p3) - m.sqrt(mi * kTi) * nu) / kTi / (
-                gamma * m.pow(N[i] + p3, gamma - 1) - 1) * (N[i] + p3) * (N[i] + p3)
+                gamma * m.pow(N[i] + p3, gamma + 1) - 1) * (N[i] + p3) * (N[i] + p3)
+        print(p1)
         #print(B * quad(FN, Psi0, Psi[i]+ dx * f3)[0])
         Psi[i + 1] = Psi[i] + 1 / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
         Delta[i + 1] = Delta[i] + 1 / 6 * (l1 + 2 * l2 + 2 * l3 + l4)
@@ -83,7 +86,7 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
 
 def main():
     # initialisation of parameters
-    boxsize = 4E-4  # m
+    boxsize = 5E-5  # m
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 0
@@ -97,16 +100,16 @@ def main():
     Te = 2.68  # eV
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
-    Vdc = -10
-    gamma = 5/3
-    nu = 100000
+    Vdc = -17
+    gamma = 3
+    nu = 1000
 
 
 
     kTi = Ti * 1.6E-19  # J
     kTe = Te * 1.6E-19  # J
 
-    x = np.zeros(Nx)
+    x = np.arange(Nx)*dx
     V = np.zeros(Nx)
     ni = np.zeros(Nx)
     ne = np.zeros(Nx)
@@ -151,6 +154,7 @@ def main():
         ni[i] = ne[i] - eps0 / e * (V[i - 1] + 2 * V[i] - V[i + 1]) / dx / dx
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
     """
+    print(Psi)
     plt.plot(x, Psi)
     plt.ylabel('Psi')
     plt.show()
@@ -160,7 +164,7 @@ def main():
     plt.show()
 
     plt.plot(x, Delta)
-    plt.ylabel('dPsi/dx')
+    plt.ylabel('-dPsi/dx')
     plt.show()
 
     plt.plot(x, V)
