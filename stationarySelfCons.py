@@ -107,7 +107,7 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
 
 def main():
     # initialisation of parameters
-    boxsize = 3E-4  # m
+    boxsize = 2E-4  # m
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 0
@@ -123,7 +123,7 @@ def main():
     n0 = 3E17  # m-3
     Vdc = -17
     gamma = 3
-    nu = 5e8
+    nu = 4e8
     #nu = 0
 
 
