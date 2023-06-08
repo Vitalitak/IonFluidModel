@@ -51,13 +51,15 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
     N = np.zeros(Nx)
     pcheck1 = np.zeros(Nx)
     pcheck2 = np.zeros(Nx)
+    lcheck1 = np.zeros(Nx)
+    lcheck2 = np.zeros(Nx)
 
-    #Psi[0] = -1e-3
-    #Delta[0] = 1e-2
-    #N[0] = m.exp(Psi[0])
-    Psi[0] = 0
-    Delta[0] = 1000
-    N[0] = 1
+    Psi[0] = -0.5
+    Delta[0] = 50000
+    N[0] = m.exp(Psi[0])
+    #Psi[0] = 0
+    #Delta[0] = 1000
+    #N[0] = 1
 
     i = 0
 
@@ -79,7 +81,9 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
                 gamma * m.pow(N[i] + p3, gamma + 1) - 1) * (N[i] + p3) * (N[i] + p3)
         pcheck1[i] = kTe*Delta[i]*N[i]-m.sqrt(mi*kTi)*nu
         pcheck2[i] = gamma * m.pow(N[i], gamma+1) - 1
-        print(k1)
+        lcheck1[i] = N[i]
+        lcheck2[i] = m.exp(Psi[i])
+        print(l1)
         #print(B * quad(FN, Psi0, Psi[i]+ dx * f3)[0])
         Psi[i + 1] = Psi[i] + 1 / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
         Delta[i + 1] = Delta[i] + 1 / 6 * (l1 + 2 * l2 + 2 * l3 + l4)
@@ -87,12 +91,14 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
 
         i=i+1
 
-    plt.plot(pcheck1, 'b')
-    plt.ylabel('p chisl')
+    plt.plot(lcheck1, 'b')
+    #plt.ylabel('p chisl')
+    plt.ylabel('N')
     plt.show()
 
-    plt.plot(pcheck2, 'r')
-    plt.ylabel('p znam')
+    plt.plot(lcheck2, 'r')
+    #plt.ylabel('p znam')
+    plt.ylabel('expPsi')
     plt.show()
 
     Nel = i + 1
@@ -101,7 +107,7 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
 
 def main():
     # initialisation of parameters
-    boxsize = 1E-4  # m
+    boxsize = 3E-4  # m
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 0
@@ -117,7 +123,8 @@ def main():
     n0 = 3E17  # m-3
     Vdc = -17
     gamma = 3
-    nu = 100000000
+    nu = 1e8
+    #nu = 0
 
 
 
@@ -182,7 +189,7 @@ def main():
     plt.plot(x, Delta)
     plt.ylabel('-dPsi/dx')
     plt.show()
-    """
+
     plt.plot(x, V)
     plt.ylabel('V')
     plt.show()
@@ -219,7 +226,7 @@ def main():
     f = open("Nel.txt", "w")
     f.write(f"{Nel}\n")
     f.close()
-    """
+
     return 0
 
 
