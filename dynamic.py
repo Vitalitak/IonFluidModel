@@ -281,14 +281,14 @@ def concentration_e(V, kTe, n0, Nel, Nx):
 
 def main():
     # initialisation of parameters
-    boxsize = 4E-4  # m
+    boxsize = 2E-4  # m
     #a = 1E-6
     dt = 1E-12 # s
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 1
     #Nt = 200000
-    Nper = 0.2
+    Nper = 0.5
     tEnd = 50  # ns
 
     me = 9.11E-31  # kg
@@ -308,8 +308,8 @@ def main():
     Arf = 0
     w = 13560000 # Hz
 
-    #Nt = int(Nper / w / dt / 2)
-    Nt = 0
+    Nt = int(Nper / w / dt / 2)
+    #Nt = 50
 
     print(Nt)
     print(int((Nper-2)/w/dt))
