@@ -123,7 +123,7 @@ def main():
     n0 = 3E17  # m-3
     Vdc = -17
     gamma = 3
-    nu = 1e8
+    nu = 5e8
     #nu = 0
 
 
