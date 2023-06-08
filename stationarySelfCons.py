@@ -49,9 +49,14 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
     Psi = np.zeros(Nx)
     Delta = np.zeros(Nx)
     N = np.zeros(Nx)
+    pcheck1 = np.zeros(Nx)
+    pcheck2 = np.zeros(Nx)
 
-    Psi[0] = -1e-5
-    #Delta[0] = 1e-5
+    #Psi[0] = -1e-3
+    #Delta[0] = 1e-2
+    #N[0] = m.exp(Psi[0])
+    Psi[0] = 0
+    Delta[0] = 1000
     N[0] = 1
 
     i = 0
@@ -72,7 +77,9 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
         l4 = dx * e * e * n0 / eps0 / kTe * (N[i] + p3 - m.exp(Psi[i] + k3))
         p4 = dx * (kTe * (Delta[i] + l3) * (N[i] + p3) - m.sqrt(mi * kTi) * nu) / kTi / (
                 gamma * m.pow(N[i] + p3, gamma + 1) - 1) * (N[i] + p3) * (N[i] + p3)
-        print(p1)
+        pcheck1[i] = kTe*Delta[i]*N[i]-m.sqrt(mi*kTi)*nu
+        pcheck2[i] = gamma * m.pow(N[i], gamma+1) - 1
+        print(k1)
         #print(B * quad(FN, Psi0, Psi[i]+ dx * f3)[0])
         Psi[i + 1] = Psi[i] + 1 / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
         Delta[i + 1] = Delta[i] + 1 / 6 * (l1 + 2 * l2 + 2 * l3 + l4)
@@ -80,13 +87,21 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
 
         i=i+1
 
+    plt.plot(pcheck1, 'b')
+    plt.ylabel('p chisl')
+    plt.show()
+
+    plt.plot(pcheck2, 'r')
+    plt.ylabel('p znam')
+    plt.show()
+
     Nel = i + 1
 
     return Psi, Delta, N, Nel
 
 def main():
     # initialisation of parameters
-    boxsize = 5E-5  # m
+    boxsize = 1E-4  # m
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 0
@@ -102,7 +117,7 @@ def main():
     n0 = 3E17  # m-3
     Vdc = -17
     gamma = 3
-    nu = 1000
+    nu = 100000000
 
 
 
@@ -154,7 +169,8 @@ def main():
         ni[i] = ne[i] - eps0 / e * (V[i - 1] + 2 * V[i] - V[i + 1]) / dx / dx
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
     """
-    print(Psi)
+    #print(Psi)
+
     plt.plot(x, Psi)
     plt.ylabel('Psi')
     plt.show()
@@ -166,7 +182,7 @@ def main():
     plt.plot(x, Delta)
     plt.ylabel('-dPsi/dx')
     plt.show()
-
+    """
     plt.plot(x, V)
     plt.ylabel('V')
     plt.show()
@@ -203,7 +219,7 @@ def main():
     f = open("Nel.txt", "w")
     f.write(f"{Nel}\n")
     f.close()
-
+    """
     return 0
 
 
