@@ -25,7 +25,7 @@ for dn/dt = 0 and du/dt = 0
 
 """
 
-def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu):
+def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu, nue):
     e = 1.6E-19
     eps0 = 8.85E-12
     me = 9.11E-31  # kg
@@ -74,25 +74,25 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu):
         #l1 = dx * e * e * n0 / eps0 / kTe * (Ni[i]-m.exp(Psi[i]))
         l1 = dx * e * e * n0 / eps0 / kTe * (Ni[i] - Ne[i])
         p1 = dx * (kTe*Delta[i]*Ni[i]-m.sqrt(mi*kTi)*nu) / kTi / (gammai * m.pow(Ni[i], gammai+1) - 1) * Ni[i] * Ni[i]
-        m1 = dx * (kTe*Delta[i]*Ne[i]) / kTe / (gammae * m.pow(Ne[i], gammae+1) - 1) * Ne[i] * Ne[i]
+        m1 = dx * (kTe*Delta[i]*Ne[i]-m.sqrt(me*kTe)*nue) / kTe / (gammae * m.pow(Ne[i], gammae+1) - 1) * Ne[i] * Ne[i]
         k2 = dx * (-Delta[i]-l1/2)
         #l2 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p1/2 -m.exp(Psi[i]+k1/2))
         l2 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p1/2 - Ne[i] - m1/2)
         p2 = dx * (kTe*(Delta[i]+l1/2)*(Ni[i]+p1/2)-m.sqrt(mi*kTi)*nu) / kTi / (gammai * m.pow(Ni[i]+p1/2, gammai+1) - 1) * (Ni[i]+p1/2) * (Ni[i]+p1/2)
-        m2 = dx * (kTe*(Delta[i]+l1/2)*(Ne[i]+m1/2)) / kTe / (gammae * m.pow(Ne[i]+m1/2, gammae+1) - 1) * (Ne[i]+m1/2) * (Ne[i]+m1/2)
+        m2 = dx * (kTe*(Delta[i]+l1/2)*(Ne[i]+m1/2)-m.sqrt(me*kTe)*nue) / kTe / (gammae * m.pow(Ne[i]+m1/2, gammae+1) - 1) * (Ne[i]+m1/2) * (Ne[i]+m1/2)
         k3 = dx * (-Delta[i]-l2/2)
         #l3 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p2 / 2 - m.exp(Psi[i] + k2 / 2))
         l3 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p2 / 2 - Ne[i] - m2 / 2)
         p3 = dx * (kTe * (Delta[i] + l2 / 2) * (Ni[i] + p2 / 2) - m.sqrt(mi * kTi) * nu) / kTi / (
                     gammai * m.pow(Ni[i] + p2 / 2, gammai + 1) - 1) * (Ni[i] + p2 / 2) * (Ni[i] + p2 / 2)
-        m3 = dx * (kTe * (Delta[i] + l2 / 2) * (Ne[i] + m2 / 2)) / kTe / (
+        m3 = dx * (kTe * (Delta[i] + l2 / 2) * (Ne[i] + m2 / 2)-m.sqrt(me*kTe)*nue) / kTe / (
                     gammae * m.pow(Ne[i] + m2 / 2, gammae + 1) - 1) * (Ne[i] + m2 / 2) * (Ne[i] + m2 / 2)
         k4 = dx * (-Delta[i]-l3)
         #l4 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p3 - m.exp(Psi[i] + k3))
         l4 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p3 - Ne[i] - m3)
         p4 = dx * (kTe * (Delta[i] + l3) * (Ni[i] + p3) - m.sqrt(mi * kTi) * nu) / kTi / (
                 gammai * m.pow(Ni[i] + p3, gammai + 1) - 1) * (Ni[i] + p3) * (Ni[i] + p3)
-        m4 = dx * (kTe * (Delta[i] + l3) * (Ne[i] + m3)) / kTe / (
+        m4 = dx * (kTe * (Delta[i] + l3) * (Ne[i] + m3)-m.sqrt(me*kTe)*nue) / kTe / (
                 gammae * m.pow(Ne[i] + m3, gammae + 1) - 1) * (Ne[i] + m3) * (Ne[i] + m3)
         pcheck1[i] = kTe*Delta[i]*Ni[i]-m.sqrt(mi*kTi)*nu
         pcheck2[i] = gammai * m.pow(Ni[i], gammai+1) - 1
@@ -139,9 +139,10 @@ def main():
     n0 = 3E17  # m-3
     Vdc = -17
     gammai = 3
-    gammae = 1
-    #nu = 4e8
-    nu = 0
+    gammae = 3
+    nu = 4e8
+    #nu = 0
+    nue = 4e12
 
 
 
@@ -175,7 +176,7 @@ def main():
     print(quad(FN, 0, -1)[0])
     """
 
-    Psi, Delta, Ni, Ne, Nel = RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu)
+    Psi, Delta, Ni, Ne, Nel = RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu, nue)
 
 
     for i in range(0, Nel):
