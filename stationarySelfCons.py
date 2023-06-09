@@ -25,9 +25,10 @@ for dn/dt = 0 and du/dt = 0
 
 """
 
-def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
+def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu):
     e = 1.6E-19
     eps0 = 8.85E-12
+    me = 9.11E-31  # kg
     mi = 6.68E-26  # kg
     kTe = Te * 1.6E-19  # J
     kTi = Ti * 1.6E-19  # J
@@ -48,62 +49,77 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu):
     """
     Psi = np.zeros(Nx)
     Delta = np.zeros(Nx)
-    N = np.zeros(Nx)
+    Ni = np.zeros(Nx)
+    Ne = np.zeros(Nx)
     pcheck1 = np.zeros(Nx)
     pcheck2 = np.zeros(Nx)
     lcheck1 = np.zeros(Nx)
     lcheck2 = np.zeros(Nx)
 
-    Psi[0] = -0.5
-    Delta[0] = 50000
-    N[0] = m.exp(Psi[0])
-    #Psi[0] = 0
-    #Delta[0] = 1000
-    #N[0] = 1
+    #Psi[0] = -0.5
+    #Delta[0] = 50000
+    #Ni[0] = m.exp(Psi[0])
+    #Ne[0] = m.exp(Psi[0])
+    Psi[0] = -0.4
+    Delta[0] = 100000
+    Ni[0] = m.exp(Psi[0])
+    Ne[0] = m.exp(Psi[0])
+    print(Ni[0])
 
     i = 0
 
     while (Psi[i] > Psil) and (i<Nx-1):
         #print(i)
         k1 = dx * (-Delta[i])
-        l1 = dx * e * e * n0 / eps0 / kTe * (N[i]-m.exp(Psi[i]))
-        p1 = dx * (kTe*Delta[i]*N[i]-m.sqrt(mi*kTi)*nu) / kTi / (gamma * m.pow(N[i], gamma+1) - 1) * N[i] * N[i]
+        #l1 = dx * e * e * n0 / eps0 / kTe * (Ni[i]-m.exp(Psi[i]))
+        l1 = dx * e * e * n0 / eps0 / kTe * (Ni[i] - Ne[i])
+        p1 = dx * (kTe*Delta[i]*Ni[i]-m.sqrt(mi*kTi)*nu) / kTi / (gammai * m.pow(Ni[i], gammai+1) - 1) * Ni[i] * Ni[i]
+        m1 = dx * (kTe*Delta[i]*Ne[i]) / kTe / (gammae * m.pow(Ne[i], gammae+1) - 1) * Ne[i] * Ne[i]
         k2 = dx * (-Delta[i]-l1/2)
-        l2 = dx * e * e * n0 / eps0 / kTe * (N[i] + p1/2 -m.exp(Psi[i]+k1/2))
-        p2 = dx * (kTe*(Delta[i]+l1/2)*(N[i]+p1/2)-m.sqrt(mi*kTi)*nu) / kTi / (gamma * m.pow(N[i]+p1/2, gamma+1) - 1) * (N[i]+p1/2) * (N[i]+p1/2)
+        #l2 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p1/2 -m.exp(Psi[i]+k1/2))
+        l2 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p1/2 - Ne[i] - m1/2)
+        p2 = dx * (kTe*(Delta[i]+l1/2)*(Ni[i]+p1/2)-m.sqrt(mi*kTi)*nu) / kTi / (gammai * m.pow(Ni[i]+p1/2, gammai+1) - 1) * (Ni[i]+p1/2) * (Ni[i]+p1/2)
+        m2 = dx * (kTe*(Delta[i]+l1/2)*(Ne[i]+m1/2)) / kTe / (gammae * m.pow(Ne[i]+m1/2, gammae+1) - 1) * (Ne[i]+m1/2) * (Ne[i]+m1/2)
         k3 = dx * (-Delta[i]-l2/2)
-        l3 = dx * e * e * n0 / eps0 / kTe * (N[i] + p2 / 2 - m.exp(Psi[i] + k2 / 2))
-        p3 = dx * (kTe * (Delta[i] + l2 / 2) * (N[i] + p2 / 2) - m.sqrt(mi * kTi) * nu) / kTi / (
-                    gamma * m.pow(N[i] + p2 / 2, gamma + 1) - 1) * (N[i] + p2 / 2) * (N[i] + p2 / 2)
+        #l3 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p2 / 2 - m.exp(Psi[i] + k2 / 2))
+        l3 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p2 / 2 - Ne[i] - m2 / 2)
+        p3 = dx * (kTe * (Delta[i] + l2 / 2) * (Ni[i] + p2 / 2) - m.sqrt(mi * kTi) * nu) / kTi / (
+                    gammai * m.pow(Ni[i] + p2 / 2, gammai + 1) - 1) * (Ni[i] + p2 / 2) * (Ni[i] + p2 / 2)
+        m3 = dx * (kTe * (Delta[i] + l2 / 2) * (Ne[i] + m2 / 2)) / kTe / (
+                    gammae * m.pow(Ne[i] + m2 / 2, gammae + 1) - 1) * (Ne[i] + m2 / 2) * (Ne[i] + m2 / 2)
         k4 = dx * (-Delta[i]-l3)
-        l4 = dx * e * e * n0 / eps0 / kTe * (N[i] + p3 - m.exp(Psi[i] + k3))
-        p4 = dx * (kTe * (Delta[i] + l3) * (N[i] + p3) - m.sqrt(mi * kTi) * nu) / kTi / (
-                gamma * m.pow(N[i] + p3, gamma + 1) - 1) * (N[i] + p3) * (N[i] + p3)
-        pcheck1[i] = kTe*Delta[i]*N[i]-m.sqrt(mi*kTi)*nu
-        pcheck2[i] = gamma * m.pow(N[i], gamma+1) - 1
-        lcheck1[i] = N[i]
-        lcheck2[i] = m.exp(Psi[i])
-        print(l1)
+        #l4 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p3 - m.exp(Psi[i] + k3))
+        l4 = dx * e * e * n0 / eps0 / kTe * (Ni[i] + p3 - Ne[i] - m3)
+        p4 = dx * (kTe * (Delta[i] + l3) * (Ni[i] + p3) - m.sqrt(mi * kTi) * nu) / kTi / (
+                gammai * m.pow(Ni[i] + p3, gammai + 1) - 1) * (Ni[i] + p3) * (Ni[i] + p3)
+        m4 = dx * (kTe * (Delta[i] + l3) * (Ne[i] + m3)) / kTe / (
+                gammae * m.pow(Ne[i] + m3, gammae + 1) - 1) * (Ne[i] + m3) * (Ne[i] + m3)
+        pcheck1[i] = kTe*Delta[i]*Ni[i]-m.sqrt(mi*kTi)*nu
+        pcheck2[i] = gammai * m.pow(Ni[i], gammai+1) - 1
+        #lcheck1[i] = Ni[i]
+        #lcheck2[i] = m.exp(Psi[i])
+        #print(p1)
         #print(B * quad(FN, Psi0, Psi[i]+ dx * f3)[0])
         Psi[i + 1] = Psi[i] + 1 / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
         Delta[i + 1] = Delta[i] + 1 / 6 * (l1 + 2 * l2 + 2 * l3 + l4)
-        N[i + 1] = N[i] + 1 / 6 * (p1 + 2 * p2 + 2 * p3 + p4)
+        Ni[i + 1] = Ni[i] + 1 / 6 * (p1 + 2 * p2 + 2 * p3 + p4)
+        Ne[i+1] = Ne[i] + 1 / 6 * (m1 + 2 * m2 + 2 * m3 + m4)
 
         i=i+1
 
-    plt.plot(lcheck1, 'b')
-    #plt.ylabel('p chisl')
-    plt.ylabel('N')
+    plt.plot(pcheck1, 'b')
+    plt.ylabel('p chisl')
+    #plt.ylabel('Ni')
     plt.show()
 
-    plt.plot(lcheck2, 'r')
-    #plt.ylabel('p znam')
-    plt.ylabel('expPsi')
+    plt.plot(pcheck2, 'r')
+    plt.ylabel('p znam')
+    #plt.ylabel('expPsi')
     plt.show()
 
     Nel = i + 1
 
-    return Psi, Delta, N, Nel
+    return Psi, Delta, Ni, Ne, Nel
 
 def main():
     # initialisation of parameters
@@ -122,9 +138,10 @@ def main():
     Ti = 0.05  # eV
     n0 = 3E17  # m-3
     Vdc = -17
-    gamma = 3
-    nu = 4e8
-    #nu = 0
+    gammai = 3
+    gammae = 1
+    #nu = 4e8
+    nu = 0
 
 
 
@@ -136,9 +153,11 @@ def main():
     ni = np.zeros(Nx)
     ne = np.zeros(Nx)
     ui = np.zeros(Nx)
+    ue = np.zeros(Nx)
 
     Psi = np.zeros(Nx)
-    N = np.zeros(Nx)
+    Ni = np.zeros(Nx)
+    Ne = np.zeros(Nx)
     Delta = np.zeros(Nx)
 
     Psil = e*Vdc/kTe
@@ -156,14 +175,16 @@ def main():
     print(quad(FN, 0, -1)[0])
     """
 
-    Psi, Delta, N, Nel = RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gamma, nu)
+    Psi, Delta, Ni, Ne, Nel = RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu)
 
 
     for i in range(0, Nel):
         V[i] = Psi[i]*kTe/e
-        ni[i] = N[i]*n0
-        ne[i] = n0*m.exp(e*V[i]/kTe)
+        ni[i] = Ni[i]*n0
+        ne[i] = Ne[i]*n0
+        #ne[i] = n0*m.exp(e*V[i]/kTe)
         ui[i] = n0 * m.sqrt(kTi / mi) / ni[i]
+        ue[i] = n0 * m.sqrt(kTe / me) / ne[i]
     """
     ne[0] = n0
     for i in range(1, Nel-1):
@@ -182,7 +203,8 @@ def main():
     plt.ylabel('Psi')
     plt.show()
 
-    plt.plot(x, N)
+    plt.plot(x, Ne, 'b')
+    plt.plot(x, Ni, 'r')
     plt.ylabel('Ni')
     plt.show()
 
@@ -199,7 +221,8 @@ def main():
     plt.ylabel('N')
     plt.show()
 
-    plt.plot(x, ui)
+    plt.plot(x, ue, 'b')
+    plt.plot(x, ui, 'r')
     plt.ylabel('u')
     plt.show()
 
