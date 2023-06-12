@@ -172,7 +172,7 @@ def main():
     nu = 0
     #nue = 4e12
     nue = 0
-    nuiz = 0.92695e9
+    nuiz = 0.92695e9 # adjusted value
 
 
 
