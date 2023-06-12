@@ -62,7 +62,7 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu, nue, nuiz):
     #Ni[0] = m.exp(Psi[0])
     #Ne[0] = m.exp(Psi[0])
     Psi[0] = -0.01
-    Delta[0] = 10
+    Delta[0] = 40000
     Ni[0] = m.exp(Psi[0])
     Ui[0] = 1.1
     #Ne[0] = m.exp(Psi[0])
@@ -151,7 +151,7 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu, nue, nuiz):
 
 def main():
     # initialisation of parameters
-    boxsize = 2E-4  # m
+    boxsize = 4E-4  # m
     dx = 1E-7
     Nx = int(boxsize/dx)
     Nsh = 0
@@ -172,7 +172,7 @@ def main():
     nu = 0
     #nue = 4e12
     nue = 0
-    nuiz = 1
+    nuiz = 10000000
 
 
 
