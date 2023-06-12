@@ -61,11 +61,11 @@ def RungeKuttasystem(Nx, dx, n0, Te, Ti, Psil, gammai, gammae, nu, nue, nuiz):
     #Delta[0] = 50000
     #Ni[0] = m.exp(Psi[0])
     #Ne[0] = m.exp(Psi[0])
-    Psi[0] = -0.02
-    Delta[0] = 50000
+    Psi[0] = -0.2  # adjusted value
+    Delta[0] = 20000 # adjusted value
     Ni[0] = m.exp(Psi[0])
     #Ui[0] = 1.001
-    Ui[0] = 1.1 # value with different regimes
+    Ui[0] = 3 # # adjusted value
     #Ne[0] = m.exp(Psi[0])
     print(Ni[0])
     uth=m.sqrt(gammai*kTi/mi)
@@ -173,8 +173,8 @@ def main():
     nu = 0
     #nue = 4e12
     nue = 0
-    nuiz = 0.92695e9  # adjusted value
-    #nuiz = 1000  # almost zero ionization
+    #nuiz = 0.92695e9  # adjusted value
+    nuiz = 50000000  # adjusted value
 
 
 
