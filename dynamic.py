@@ -116,7 +116,7 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
     dx = 1E-7
     e = 1.6E-19
     mi = 6.68E-26  # kg
-    gamma = 5 / 3
+    gamma = 3
     #u = [0 for k in range(0, Nx)]
     u = np.zeros(Nx)
 
@@ -190,13 +190,14 @@ def momentum(V, n, uprev, kTi, kTe, n0, Nel, Nsh, Nx, dt):
     return u
 
 
-def continuity(u, nprev, Nel, Nsh, Nx, dt):
+def continuity(u, nprev, V, n0, kTe, nuiz, Nel, Nsh, Nx, dt):
 
     """
     Explicit conservative upwind scheme
     """
 
     #dt = 1E-11  # s
+    e = 1.6E-19
     dx = 1E-7
     #n = [0 for k in range(0, Nx)]
     n = np.zeros(Nx)
@@ -256,7 +257,9 @@ def continuity(u, nprev, Nel, Nsh, Nx, dt):
         n[i] = nprev[i] - dt * ((nprev[i]*u[i]-nprev[i-1]*u[i-1])/dx)
         #print(((nprev[i]-nprev[i-1])*u[i]+(u[i]-u[i-1])*nprev[i]))
     """
-    n[Nsh:Nel] = nprev[Nsh:Nel] - dt * ((nprev[Nsh:Nel]*u[Nsh:Nel]-nprev[Nsh-1:Nel - 1]*u[Nsh-1:Nel-1])/dx)
+    #n[Nsh:Nel] = nprev[Nsh:Nel] - dt * ((nprev[Nsh:Nel]*u[Nsh:Nel]-nprev[Nsh-1:Nel - 1]*u[Nsh-1:Nel-1])/dx)
+    n[Nsh:Nel] = nprev[Nsh:Nel] - dt * (
+                (nprev[Nsh:Nel] * u[Nsh:Nel] - nprev[Nsh - 1:Nel - 1] * u[Nsh - 1:Nel - 1]) / dx - nuiz * n0 * m.e ** (e*V[Nsh:Nel]/kTe))
 
     #print(((nprev[3] - nprev[2]) * u[3] + (u[3] - u[2]) * nprev[3]))
     return n
@@ -304,12 +307,13 @@ def main():
     C0 = 3e-6 # F
     S = 1e-2 # m^2 electrode area
     C = C0/S
-    gamma = 5/3
+    gamma = 3
+    nuiz = 5e7
     Arf = 0
     w = 13560000 # Hz
 
-    Nt = int(Nper / w / dt / 2)
-    #Nt = 50
+    #Nt = int(Nper / w / dt / 2)
+    Nt = 0
 
     print(Nt)
     print(int((Nper-2)/w/dt))
@@ -412,7 +416,7 @@ def main():
     V_1 = Pois(ne, ni, V, Vel, n0, dx, Nel, Nsh, Nx)
     ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nsh, Nx, dt)
     #ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
-    ni_1 = continuity(ui_1, ni, Nel, Nsh, Nx, dt)
+    ni_1 = continuity(ui_1, ni, V_1, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
     ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
@@ -442,7 +446,7 @@ def main():
         V_2 = Pois(ne_1, ni_1, V_1, Vel2, n0, dx, Nel, Nsh, Nx)
         ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nsh, Nx, dt)
         #ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
-        ni_2 = continuity(ui_2, ni_1, Nel, Nsh, Nx, dt)
+        ni_2 = continuity(ui_2, ni_1, V_2, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
         ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
@@ -468,7 +472,7 @@ def main():
         V_1 = Pois(ne_2, ni_2, V_2, Vel3, n0, dx, Nel, Nsh, Nx)
         ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nsh, Nx, dt)
         #ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
-        ni_1 = continuity(ui_1, ni_2, Nel, Nsh, Nx, dt)
+        ni_1 = continuity(ui_1, ni_2, V_1, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
         ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
         #ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
 
