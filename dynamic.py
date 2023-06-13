@@ -308,7 +308,7 @@ def main():
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 3
-    nuiz = 5e7
+    nuiz = 4e7
     Arf = 0
     w = 13560000 # Hz
 
