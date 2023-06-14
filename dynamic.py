@@ -313,7 +313,7 @@ def main():
     w = 13560000 # Hz
 
     #Nt = int(Nper / w / dt / 2)
-    Nt = 0
+    Nt = 10
 
     print(Nt)
     print(int((Nper-2)/w/dt))
