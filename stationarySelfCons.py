@@ -248,16 +248,19 @@ def main():
 
     plt.plot(x, V)
     plt.ylabel('V')
+    plt.xlabel('x')
     plt.show()
 
     plt.plot(x, ne, 'b')
     plt.plot(x, ni, 'r')
     plt.ylabel('N')
+    plt.xlabel('x')
     plt.show()
 
     #plt.plot(x, ue, 'b')
     plt.plot(x, ui, 'r')
     plt.ylabel('u')
+    plt.xlabel('x')
     plt.show()
 
     f = open("V.txt", "w")

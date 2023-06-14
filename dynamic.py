@@ -308,12 +308,12 @@ def main():
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 3
-    nuiz = 4e7
+    nuiz = 3e7
     Arf = 0
     w = 13560000 # Hz
 
     #Nt = int(Nper / w / dt / 2)
-    Nt = 10
+    Nt = 1
 
     print(Nt)
     print(int((Nper-2)/w/dt))
