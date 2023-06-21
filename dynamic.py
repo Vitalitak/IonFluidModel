@@ -69,6 +69,8 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
         b[i] = 0
     a[Nsh] = 0
     b[Nsh] = Vprev[Nsh]
+    #a[Nsh] = 1
+    #b[Nsh] = V[Nsh-1]-V[Nsh]
 
     for i in range(Nsh+1, Nel - 1):
         #a[i] = -1 / (-2 + a[i - 1])
@@ -89,6 +91,7 @@ def Pois(ne, ni, Vprev, Ve, n0, dx, Nel, Nsh, Nx):
     # boundary condition on electrode surface: (V)el = Ve
     a[Nel-1] = 0
     b[Nel-1] = Ve  #  (V)p = 0
+    #print(b)
 
     # backward
     V[Nel-1] = b[Nel-1]
@@ -308,12 +311,11 @@ def main():
     S = 1e-2 # m^2 electrode area
     C = C0/S
     gamma = 3
-    nuiz = 3e7
+    nuiz = 3.3e7
     Arf = 0
     w = 13560000 # Hz
 
-    #Nt = int(Nper / w / dt / 2)
-    Nt = 1
+    Nt = 10
 
     print(Nt)
     print(int((Nper-2)/w/dt))
@@ -414,10 +416,13 @@ def main():
     Vel = V[Nel-1]+q
 
     V_1 = Pois(ne, ni, V, Vel, n0, dx, Nel, Nsh, Nx)
-    ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nsh, Nx, dt)
+    #ui_1 = momentum(V_1, ni, ui, kTi, kTe, n0, Nel, Nsh, Nx, dt)
+    ui_1 = momentum(V, ni, ui, kTi, kTe, n0, Nel, Nsh, Nx, dt)
     #ue_1 = momentum_e(V_1, ne, ue, kTe, de, n0, Nel, Nx, dt)
-    ni_1 = continuity(ui_1, ni, V_1, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
-    ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
+    #ni_1 = continuity(ui_1, ni, V_1, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
+    ni_1 = continuity(ui, ni, V, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
+    #ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
+    ne_1 = concentration_e(V, kTe, n0, Nel, Nx)
     #ne_1 = continuity(ue_1, ne, Nel, Nx, dt)
     #q += e*(ni_1[Nel-1]*ui_1[Nel-1]-ne_1[Nel-1]*ue_1[Nel-1])*dt/C
 
@@ -444,10 +449,13 @@ def main():
         #Vel2 = V[Nel-1] + q
 
         V_2 = Pois(ne_1, ni_1, V_1, Vel2, n0, dx, Nel, Nsh, Nx)
-        ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nsh, Nx, dt)
+        #ui_2 = momentum(V_2, ni_1, ui_1, kTi, kTe, n0, Nel, Nsh, Nx, dt)
+        ui_2 = momentum(V_1, ni_1, ui_1, kTi, kTe, n0, Nel, Nsh, Nx, dt)
         #ue_2 = momentum_e(V_2, ne_1, ue_1, kTe, de, n0, Nel, Nx, dt)
-        ni_2 = continuity(ui_2, ni_1, V_2, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
-        ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
+        #ni_2 = continuity(ui_2, ni_1, V_2, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
+        ni_2 = continuity(ui_1, ni_1, V_1, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
+        #ne_2 = concentration_e(V_2, kTe, n0, Nel, Nx)
+        ne_2 = concentration_e(V_1, kTe, n0, Nel, Nx)
         #ne_2 = continuity(ue_2, ne_1, Nel, Nx, dt)
         #q += e * (ni_2[Nel - 1] * ui_2[Nel - 1] - ne_2[Nel - 1] * ue_2[Nel - 1])*dt / C
         if V_2[Nel - 1]<0:
@@ -470,10 +478,13 @@ def main():
         #Vel3 = V[Nel - 1] + q
 
         V_1 = Pois(ne_2, ni_2, V_2, Vel3, n0, dx, Nel, Nsh, Nx)
-        ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nsh, Nx, dt)
+        #ui_1 = momentum(V_1, ni_2, ui_2, kTi, kTe, n0, Nel, Nsh, Nx, dt)
+        ui_1 = momentum(V_2, ni_2, ui_2, kTi, kTe, n0, Nel, Nsh, Nx, dt)
         #ue_1 = momentum_e(V_1, ne_2, ue_2, kTe, de, n0, Nel, Nx, dt)
-        ni_1 = continuity(ui_1, ni_2, V_1, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
-        ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
+        #ni_1 = continuity(ui_1, ni_2, V_1, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
+        ni_1 = continuity(ui_2, ni_2, V_2, n0, kTe, nuiz, Nel, Nsh, Nx, dt)
+        #ne_1 = concentration_e(V_1, kTe, n0, Nel, Nx)
+        ne_1 = concentration_e(V_2, kTe, n0, Nel, Nx)
         #ne_1 = continuity(ue_1, ne_2, Nel, Nx, dt)
 
         """
@@ -533,6 +544,7 @@ def main():
 
     plt.plot(x, V, 'r')
     plt.plot(x, V_1, 'b')
+    plt.plot(x, V_2, 'm')
     #plt.plot(x, V_2, 'g')
     #plt.plot(x, V_3, 'm')
     plt.ylabel('V')
