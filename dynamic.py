@@ -315,7 +315,7 @@ def main():
     Arf = 0
     w = 13560000 # Hz
 
-    Nt = 10
+    Nt = 23
 
     print(Nt)
     print(int((Nper-2)/w/dt))
